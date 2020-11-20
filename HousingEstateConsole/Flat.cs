@@ -8,28 +8,14 @@ namespace HousingEstateConsole
     internal class Flat
     {
         private readonly int _flatNumber;
+        private readonly int _flatFloor;
         private List<Person> _residents;
 
-        public Flat(int flatNumber)
+        public Flat(int flatNumber, int flatFloor)
         {
             _flatNumber = flatNumber;
-        }
-
-        public Flat(int flatNumber, Person resident)
-        {
-            _flatNumber = flatNumber;
-            _residents = new List<Person>() {resident};
-        }
-
-        public Flat(int flatNumber, IEnumerable<Person> residents)
-        {
-            _flatNumber = flatNumber;
-            _residents = residents.ToList();
-        }
-
-        public void AddResident(Person resident)
-        {
-            _residents.Add(resident);
+            _flatFloor = flatFloor;
+            _residents = new List<Person>();
         }
 
         public int GetNumber()
@@ -37,24 +23,26 @@ namespace HousingEstateConsole
             return _flatNumber;
         }
 
-        public void AddResidents(IEnumerable<Person> residents)
+        public int GetFloor()
         {
-            foreach (var resident in residents)
-            {
-                _residents.Add(resident);
-            }
+            return _flatFloor;
         }
 
+        public void AddResident(Person resident)
+        {
+            _residents.Add(resident);
+        }
+        
         public void RemoveResident(string name)
         {
-            var buffer = _residents.Where(resident => resident.GetName() != name).ToList();
+            var buffer = _residents.Where(resident => resident.GetFullName() != name).ToList();
             _residents.Clear();
             _residents = buffer;
         }
 
-        public void Show()
+        public List<Person> GetResidents()
         {
-            Console.WriteLine("Flat number : " + _flatNumber);
+            return _residents;
         }
     }
 }

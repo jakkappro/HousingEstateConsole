@@ -33,17 +33,12 @@ namespace HousingEstateConsole
             }
         }
 
-        public void Show()
-        {
-            Console.WriteLine($"Name of this housing estate is {_name}. It contains {_blockOfFlatses.Count} blocks of flats.");
-        }
-
         public void Save()
         {
             //TODO:
         }
 
-        public List<BlockOfFlats> GetEntrances()
+        public List<BlockOfFlats> GetBlockOfFlatses()
         {
             return _blockOfFlatses;
         }

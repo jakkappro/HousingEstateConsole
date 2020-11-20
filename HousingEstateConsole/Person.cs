@@ -17,9 +17,9 @@ namespace HousingEstateConsole
             _age = age;
         }
 
-        public string GetName()
+        public string GetFullName()
         {
-            return _firstName + " " + _secondName;
+            return _firstName + "_" + _secondName;
         }
 
         public string GetFirstName()
@@ -35,6 +35,11 @@ namespace HousingEstateConsole
         public int GetAge()
         {
             return _age;
+        }
+
+        public void SetAge(int age)
+        {
+            _age = age;
         }
     }
 }

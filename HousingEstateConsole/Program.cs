@@ -1,417 +1,471 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using System.Net.Sockets;
 
 namespace HousingEstateConsole
 {
     internal static class Program
     {
-        private static void Main(string[] args)
+        private static List<HousingEstate> _housingEstates;
+
+        private static bool _running;
+
+        private static string _editing;
+
+        private static int _flatIndex;
+        private static int _personIndex;
+        private static int _housingIndex;
+        private static int _entranceIndex;
+        private static int _blockOfFlatsIndex;
+
+        private static void UpdateIndexs()
         {
-            Console.WriteLine("Housing Estate console. For help type help.");
-
-            var running = true;
-            var edited = 0;
-            var editing = "";
-            var entranceNumber = 0;
-            var housingEstates = new List<HousingEstate>();
-            var entranceIndex = 0;
-            var flatIndex = new int[2];
+            _flatIndex = -1;
+            _personIndex = -1;
+            _housingIndex = -1;
+            _entranceIndex = -1;
+            _blockOfFlatsIndex = -1;
 
 
-            while (running)
+            var indexNames = _editing.Split(">");
+
+            if (indexNames.Length > 2)
             {
-                Console.Write(editing + ">");
+                foreach (var estate in _housingEstates.Where(estate => estate.GetName() == indexNames[1]))
+                    _housingIndex = _housingEstates.IndexOf(estate);
+            }
 
+            if (indexNames.Length > 3)
+            {
+                foreach (var blockOfFlats in _housingEstates[_housingIndex].GetBlockOfFlatses().Where(estate => estate.GetBlockNumber() == int.Parse(indexNames[2])))
+                    _blockOfFlatsIndex = _housingEstates[_housingIndex].GetBlockOfFlatses().IndexOf(blockOfFlats);
+            }
+            if (indexNames.Length > 4)
+            {
+                foreach (var entrance in _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances().Where(estate => estate.GetNumber() == int.Parse(indexNames[3])))
+                    _entranceIndex = _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances().IndexOf(entrance);
+            }
+            if (indexNames.Length > 5)
+            {
+                foreach (var flat in _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats().Where(flat => flat.GetNumber() == int.Parse(indexNames[4])))
+                    _flatIndex = _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats().IndexOf(flat);
+            }
+            if (indexNames.Length > 6)
+            {
+                foreach (var person in _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents().Where(person => person.GetFullName() == indexNames[5]))
+                    _flatIndex = _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents().IndexOf(person);
+            }
+        }
+
+        private static void Help(string[] buffer)
+        {
+            var overloads = new List<string>();
+            for (var i = 1; i < buffer.Length; i++)
+                overloads.Add(buffer[i]);
+            
+            if (overloads.Count == 0)
+            {
+                Console.WriteLine("Global commands:");
+                Console.WriteLine("help  -> show information about command or all commands.");
+                Console.WriteLine("clear -> clears console");
+                Console.WriteLine("cls   -> clears console");
+                Console.WriteLine("exit  -> switch one unit behind or end a program");//TODO: Check if works properly
+
+                Console.WriteLine("\nDefault commands:"); //TODO: create more reasonable name for group of commands
+                Console.WriteLine("create -> creates new housing estate");
+                Console.WriteLine("load   -> loads housing estate from a file");//TODO: loading doesn't work
+                Console.WriteLine("switch -> switch to already existing housing estate");
+
+                Console.WriteLine("\nHousing estate commands:");
+                Console.WriteLine("create -> creates new block of flats");
+                Console.WriteLine("switch -> switch to already existing block of flats");
+                Console.WriteLine("remove -> removes block of flats");
+                Console.WriteLine("save   -> saves current housing estate");//TODO: saving doesn't work
+                Console.WriteLine("name   -> show name of housing estate");
+
+                Console.WriteLine("\nBlock of house commands:");
+                Console.WriteLine("create           -> creates new entrance");
+                Console.WriteLine("switch           -> switch to already existing entrance");
+                Console.WriteLine("number           -> show or change block of flats number");
+                Console.WriteLine("street           -> show or change block of flats street");
+                Console.WriteLine("floors           -> show or change block of flats floors");
+                Console.WriteLine("flats_per_floors -> show block of flats flats per floor");
+
+                Console.WriteLine("\nEntrance commands:");
+                Console.WriteLine("switch -> switch to flat");
+                Console.WriteLine("number -> show entrance number");
+
+                Console.WriteLine("\nFlat commands:");
+                Console.WriteLine("create -> creates new resident");
+                Console.WriteLine("switch -> switch to already existing resident");
+                Console.WriteLine("remove -> removes resident");
+                Console.WriteLine("number -> show flat number");
+                Console.WriteLine("floor  -> show flat floor");
+
+                Console.WriteLine("\nResident commands:");
+                
+            }
+            else
+            {
+                //TODO: create definition and usage for commands maybe new class for command
+            }
+        }
+
+        private static void Default(string[] overloads)
+        {
+            switch (overloads[0])
+            {
+                case "create":
+                    if (overloads.Length == 2)
+                        _housingEstates.Add(new HousingEstate(overloads[1]));
+                    
+                    else
+                    {
+                        Console.Write("Please insert name of housing estate: ");
+                        var name = Console.ReadLine();
+                        _housingEstates.Add(new HousingEstate(name));
+                    }
+                    
+                    break;
+                
+                case "load":
+                    break;
+                
+                case "switch":
+                    if (overloads.Length != 2)
+                        break;
+
+                    foreach (var housing in _housingEstates.Where(housing => housing.GetName() == overloads[1]))
+                        _editing += housing.GetName() + ">";
+
+                    break;
+            }
+        }
+
+        private static void Housing(string[] overloads)
+        {
+            switch (overloads[0])
+            {
+                case "create": //TODO:Better control of user input, creates first entrance automaticly
+                    if(overloads.Length == 6)
+                        _housingEstates[_housingIndex].Add(new BlockOfFlats(overloads[1], int.Parse(overloads[2]), int.Parse(overloads[3]), int.Parse(overloads[4]), int.Parse(overloads[5])));
+                    
+                    else
+                    {
+                        Console.Write("Street: ");
+                        var street = Console.ReadLine();
+                        
+                        Console.Write("First entrance number: ");
+                        var en = int.Parse(Console.ReadLine()!);
+                        
+                        Console.Write("Block of flats number: ");
+                        var bofn = int.Parse(Console.ReadLine()!);
+                        
+                        Console.Write("Floors: ");
+                        var fl = int.Parse(Console.ReadLine()!);
+                        
+                        Console.Write("Flats per floor: ");
+                        var fpf = int.Parse(Console.ReadLine()!);
+                        
+                        _housingEstates[_housingIndex].Add(new BlockOfFlats(street, en, bofn, fl, fpf));
+                    }
+                    
+                    break;
+                
+                case "switch":
+                    if (overloads.Length != 2)
+                        break;
+
+                    foreach (var block in _housingEstates[_housingIndex].GetBlockOfFlatses()
+                        .Where(block => block.GetBlockNumber() == int.Parse(overloads[1])))
+                        _editing += block.GetBlockNumber() + ">";
+                    
+                    break;
+                
+                case "remove":
+                    if (overloads.Length != 2)
+                        break;
+                    
+                    _housingEstates[_housingIndex].Remove(int.Parse(overloads[1]));
+                    
+                    break;
+                
+                case "save":
+                    break;
+                
+                case "name":
+                    Console.WriteLine(_housingEstates[_housingIndex].GetName());
+                    
+                    break;
+            }
+        }
+
+        private static void Block(string[] overloads)
+        {
+            switch (overloads[0])
+            {
+                case "create":
+                    _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].Add();
+
+                    break;
+                
+                case "switch":
+                    if (overloads.Length != 2)
+                        break;
+
+                    foreach (var entrance in _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()
+                        .Where(entrance => entrance.GetNumber() == int.Parse(overloads[1])))
+                        _editing += entrance.GetNumber() + ">";
+
+                    break;
+                
+                case "number":
+                    if(overloads.Length == 2)
+                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].SetBlockNumber(int.Parse(overloads[1]));
+
+                    else
+                        Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetBlockNumber());
+                    
+                    break;
+                
+                case "street":
+                    if(overloads.Length == 2)
+                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].SetStreet(overloads[1]);
+
+                    else
+                        Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetStreet());
+
+                    break;
+                
+                case "floors":
+                    if(overloads.Length == 2)
+                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].SetFloors(int.Parse(overloads[1]));
+
+                    else
+                        Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetFloors());
+
+                    break;
+                
+                case "flats_per_floors":
+                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetFlatsPerFloor());
+                    
+                    break;
+            }
+        }
+
+        private static void Entrance(string[] overloads)
+        {
+            switch (overloads[0])
+            {
+                case "switch":
+                    if (overloads.Length != 2)
+                        break;
+
+                    foreach (var flat in _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()
+                        .Where(flat => flat.GetNumber() == int.Parse(overloads[1])))
+                        _editing += flat.GetNumber() + ">";
+                    
+                    break;
+                
+                case "number":
+                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetNumber());
+                    
+                    break;
+            }
+        }
+
+        private static void Flat(string[] overloads)
+        {
+            switch (overloads[0])
+            {
+                case "create":
+                    if (overloads.Length == 4)
+                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].AddResident(new Person(overloads[1], overloads[2], int.Parse(overloads[3])));
+
+                    else
+                    {
+                        Console.Write("First name: ");
+                        var fName = Console.ReadLine();
+
+                        Console.Write("Last name: ");
+                        var lName = Console.ReadLine();
+
+                        Console.Write("Age: ");
+                        var age = int.Parse(Console.ReadLine()!);
+                        
+                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].AddResident(new Person(fName, lName, age));
+                    }
+                    
+                    break;
+                
+                
+                case "switch": //Format of name is firstName_secondName 
+                    if (overloads.Length != 2)
+                        break;
+
+                    foreach (var resident in _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex]
+                        .GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents()
+                        .Where(resident => resident.GetFullName() == overloads[1]))
+                        _editing += resident.GetFullName() + ">";
+
+                    break;
+                
+                case "remove":
+                    if (overloads.Length != 2)
+                        break;
+                    
+                    _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].RemoveResident(overloads[1]);
+                    
+                    break;
+                
+                case "number":
+                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetNumber());
+                    
+                    break;
+                
+                case "floor":
+                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetFloor());
+                    
+                    break;
+                
+            }
+        }
+
+        private static void Person(string[] overloads)
+        {
+            switch (overloads[0])
+            {
+                case "first_name":
+                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents()[_personIndex].GetFirstName());
+                    
+                    break;
+                
+                case "second_name":
+                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents()[_personIndex].GetSecondName());
+                    
+                    break;
+                
+                case "full_name":
+                case "name":
+                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents()[_personIndex].GetFullName());
+                    
+                    break;
+                
+                case "age":
+                    if(overloads.Length == 2)
+                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents()[_personIndex].SetAge(int.Parse(overloads[1]));
+                    
+                    else
+                        Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents()[_personIndex].GetAge());
+
+                    break;
+            }
+        }
+
+        private static int UpdateEdited()
+        {
+            var buffer = _editing;
+            return buffer.Split(">").Length - 2;
+        }
+
+        private static void Main()
+        {
+            _running = true;
+            _editing = ">";
+            _housingEstates = new List<HousingEstate>();
+            _entranceIndex = 0;
+            _flatIndex = 0;
+
+            var edited = 0;
+
+            Console.WriteLine("Housing Estate  console. For help type help.");
+
+            while (_running)
+            {
+                Console.Write(_editing);
+                
                 var input = Console.ReadLine();
 
                 if (string.IsNullOrEmpty(input))
                     continue;
 
-                var splintedInput = input.Split(" ");
+                var splitInput = input.Split(" ");
 
-                switch (edited)
+                UpdateIndexs();
+
+                switch (splitInput[0])
                 {
-                    case 0:
-
-                        switch (splintedInput[0])
-                        {
-                            case "help":
-                                break;
-
-                            case "clear":
-                                Console.Clear();
-                                break;
-
-                            case "create":
-                                HousingEstate housingEstate;
-                                if (splintedInput.Length > 1)
-                                {
-                                    housingEstate = new HousingEstate(splintedInput[1]);
-                                    housingEstates.Add(housingEstate);
-                                    editing = housingEstate.GetName();
-                                    edited = 1;
-                                    break;
-                                }
-
-                                Console.Write("Type name of housing estate: ");
-                                var name = Console.ReadLine();
-                                housingEstate = new HousingEstate(name);
-                                editing = housingEstate.GetName();
-                                edited = 1;
-                                housingEstates.Add(housingEstate);
-                                break;
-
-                            case "switch":
-                                if (splintedInput.Length > 1)
-                                {
-                                    foreach (var housing in housingEstates.Where(housing =>
-                                        housing.GetName() == splintedInput[1]))
-                                    {
-                                        edited = 1;
-                                        editing = housing.GetName();
-                                    }
-                                }
-
-                                break;
-
-                            case "load":
-                                break;
-
-                            case "quit":
-                            case "exit":
-                                running = false;
-                                break;
-                        }
+                    case var x when x.Contains("help"):
+                        Help(splitInput);
 
                         break;
 
-                    case 1:
-
-                        var index = 0;
-
-                        foreach (var housingEstate in housingEstates.Where(housingEstate =>
-                            housingEstate.GetName() == editing))
-                        {
-                            index = housingEstates.IndexOf(housingEstate);
-                        }
-
-                        switch (splintedInput[0])
-                        {
-                            case "help":
-                                break;
-
-                            case "exit":
-                                edited = 0;
-                                editing = "";
-                                break;
-
-                            case "clear":
-                                Console.Clear();
-                                break;
-
-                            case "create":
-                                if (splintedInput.Length == 4)
-                                    housingEstates[index].Add(new BlockOfFlats(splintedInput[1],
-                                        int.Parse(splintedInput[2]),
-                                        int.Parse(splintedInput[3])));
-
-                                else
-                                {
-                                    Console.Write("Street :");
-                                    var street = Console.ReadLine() ?? "Empty";
-                                    Console.Write("Entrance number: ");
-                                    var entrance = int.Parse(Console.ReadLine() ?? "0");
-                                    Console.Write("Block number :");
-                                    var blockNumber = int.Parse(Console.ReadLine() ?? "0");
-                                    housingEstates[index].Add(new BlockOfFlats(street, entrance, blockNumber));
-                                }
-
-                                break;
-
-                            case "remove":
-                                if (splintedInput.Length > 1)
-                                    housingEstates[index].Remove(int.Parse(splintedInput[1]));
-
-                                break;
-
-                            case "show":
-                                housingEstates[index].Show();
-                                break;
-
-                            case "save":
-                                break;
-
-                            case "switch":
-                                if (!(splintedInput.Length > 1))
-                                    break;
-                                if (housingEstates[index].GetEntrances().Any(entrance =>
-                                    entrance.GetBlockNumber() == int.Parse(splintedInput[1])))
-                                {
-                                    editing += $">{splintedInput[1]}";
-                                    entranceNumber = int.Parse(splintedInput[1]);
-                                    edited = 2;
-                                }
-
-                                break;
-                        }
+                    case "clear":
+                    case "cls":
+                        Console.Clear();
 
                         break;
 
-                    case 2:
-
-                        var index1 = 0;
-
-                        foreach (var housingEstate in housingEstates.Where(housingEstate =>
-                            housingEstate.GetName() == editing))
+                    case "exit":
+                        if (_editing.Length > 1)    
                         {
-                            index1 = housingEstates.IndexOf(housingEstate);
+                            var buffer = new string(_editing.Substring(0, _editing.Length - 2));
+                            var splitBuffer = buffer.Split('>');
+                            buffer = "";
+                            
+                            for (var i = 0; i < splitBuffer.Length - 1; i++)
+                            {
+                                buffer += splitBuffer[i] + ">";
+                            }
+
+                            _editing = buffer;
                         }
-
-                        var blockOfFlatsIndex = 0;
-
-                        foreach (var entrance in housingEstates[index1].GetEntrances()
-                            .Where(entrance => entrance.GetBlockNumber() == entranceNumber))
-                            blockOfFlatsIndex = housingEstates[index1].GetEntrances().IndexOf(entrance);
-
-                        switch (splintedInput[0])
-                        {
-                            case "help":
-                                break;
-
-                            case "clear":
-                                Console.Clear();
-                                break;
-
-                            case "create":
-                                if (splintedInput.Length == 3)
-                                {
-                                    housingEstates[index1].GetEntrances()[blockOfFlatsIndex].Add(new Entrance(0,
-                                        int.Parse(splintedInput[1]), int.Parse(splintedInput[2])));
-                                    break;
-                                }
-
-                                Console.Write("Floors :");
-                                var floors = int.Parse(Console.ReadLine());
-                                Console.Write("Flats per floor :");
-                                var flatsPF = int.Parse(Console.ReadLine());
-                                housingEstates[index1].GetEntrances()[blockOfFlatsIndex]
-                                    .Add(new Entrance(0, floors, flatsPF));
-
-                                break;
-
-                            case "exit":
-                                edited = 1;
-                                editing = editing.Substring(0, editing.Length - 2).TrimEnd('>');
-                                entranceNumber = -1;
-                                break;
-
-                            case "switch":
-                                if (splintedInput.Length != 2)
-                                    break;
-
-                                foreach (var entrance in housingEstates[index1].GetEntrances()[blockOfFlatsIndex]
-                                    .GetEntrances().Where(entrance =>
-                                        entrance.GetNumber() == int.Parse(splintedInput[1])))
-                                {
-                                    edited = 3;
-                                    editing += $">{entrance.GetNumber()}";
-                                    entranceIndex = housingEstates[index1].GetEntrances()[blockOfFlatsIndex]
-                                        .GetEntrances().IndexOf(entrance);
-                                }
-
-                                break;
-
-                            case "show":
-                                housingEstates[index1].GetEntrances()[blockOfFlatsIndex].Show();
-                                break;
-
-                            case "number":
-                                Console.WriteLine(housingEstates[index1].GetEntrances()[blockOfFlatsIndex]
-                                    .GetBlockNumber());
-                                break;
-
-                            case "street":
-                                Console.WriteLine(housingEstates[index1].GetEntrances()[blockOfFlatsIndex].GetStreet());
-                                break;
-                        }
+                            
+                        else
+                            _running = false;
 
                         break;
 
-                    case 3:
+                    default:
+                        UpdateIndexs();
 
-                        var index2 = 0;
-
-                        foreach (var housingEstate in housingEstates.Where(housingEstate =>
-                            housingEstate.GetName() == editing))
+                        switch (edited)
                         {
-                            index2 = housingEstates.IndexOf(housingEstate);
-                        }
-
-                        var blockOfFlatsIndex1 = 0;
-
-                        foreach (var entrance in housingEstates[index2].GetEntrances()
-                            .Where(entrance => entrance.GetBlockNumber() == entranceNumber))
-                            blockOfFlatsIndex1 = housingEstates[index2].GetEntrances().IndexOf(entrance);
-
-                        switch (splintedInput[0])
-                        {
-                            case "help":
-                                break;
-
-                            case "clear":
-                                Console.Clear();
-                                break;
-
-                            case "switch":
-                                if (splintedInput.Length != 2) //switch flatNumber
-                                    break;
-
-                                foreach (var (floor, f) in housingEstates[index2].GetEntrances()[blockOfFlatsIndex1]
-                                    .GetEntrances()[entranceIndex].GetFlats())
-                                {
-                                    foreach (var flat in housingEstates[index2].GetEntrances()[blockOfFlatsIndex1]
-                                        .GetEntrances()[entranceIndex].GetFlats()[floor].Where(flat =>
-                                            flat.GetNumber() == int.Parse(splintedInput[1])))
-                                    {
-                                        edited = 4;
-                                        editing += editing + $">{flat.GetNumber()}";
-                                        flatIndex[0] = floor;
-                                        flatIndex[1] =
-                                            housingEstates[index2].GetEntrances()[blockOfFlatsIndex1].GetEntrances()[
-                                                entranceIndex].GetFlats()[floor].IndexOf(flat);
-                                    }
-                                }
+                            case 0:
+                                Default(splitInput);//done loading, second time it just doesn't create housing : when first time write create house it will create new housingEstate but when user writes it second time IN ROW it doesn't do shit :(
 
                                 break;
 
-                            case "getNumber":
-                                Console.WriteLine(
-                                    housingEstates[index2].GetEntrances()[blockOfFlatsIndex1].GetEntrances()[
-                                            entranceIndex]
-                                        .GetNumber());
+                            case 1:
+                                Housing(splitInput);//done better user input, saving
+
                                 break;
 
-                            case "exit":
-                                edited--;
-                                editing = editing.Substring(0, editing.Length - 2).TrimEnd('>');
+                            case 2:
+                                Block(splitInput);//done
+
                                 break;
 
-                            case "getNumberOfHouses":
-                                Console.WriteLine(
-                                    housingEstates[index2].GetEntrances()[blockOfFlatsIndex1].GetEntrances()[
-                                            entranceIndex]
-                                        .GetNumberOfHouses());
+                            case 3:
+                                Entrance(splitInput);//done
+
                                 break;
 
-                            case "getFloors":
-                                Console.WriteLine(
-                                    housingEstates[index2].GetEntrances()[blockOfFlatsIndex1].GetEntrances()[
-                                            entranceIndex]
-                                        .GetFloors());
+                            case 4:
+                                Flat(splitInput);//done
+
                                 break;
 
-                            case "setFloors":
-                                if (splintedInput.Length != 2)
-                                    break;
+                            case 5:
+                                Person(splitInput);//done
 
-                                housingEstates[index2].GetEntrances()[blockOfFlatsIndex1].GetEntrances()[entranceIndex]
-                                    .SetFloors(int.Parse(splintedInput[1]));
-                                break;
-
-                            case "addFloors":
-                                if (splintedInput.Length != 2)
-                                    break;
-
-                                housingEstates[index2].GetEntrances()[blockOfFlatsIndex1].GetEntrances()[entranceIndex]
-                                    .AddFloors(int.Parse(splintedInput[1]));
-                                break;
-
-                            case "getFlatsPerFloor":
-                                Console.WriteLine(
-                                    housingEstates[index2].GetEntrances()[blockOfFlatsIndex1].GetEntrances()[
-                                            entranceIndex]
-                                        .GetFlatsPerFloor());
-                                break;
-
-                            case "setFlatsPerFloor":
-                                if (splintedInput.Length != 2)
-                                    break;
-
-                                housingEstates[index2].GetEntrances()[blockOfFlatsIndex1].GetEntrances()[entranceIndex]
-                                    .SetFlatsPerFloor(int.Parse(splintedInput[1]));
                                 break;
                         }
 
-                        break;
-
-                    case 4:
-
-                        var index3 = 0;
-
-                        foreach (var housingEstate in housingEstates.Where(housingEstate =>
-                            housingEstate.GetName() == editing))
-                        {
-                            index3 = housingEstates.IndexOf(housingEstate);
-                        }
-
-                        var blockOfFlatsIndex2 = 0;
-
-                        foreach (var entrance in housingEstates[index3].GetEntrances()
-                            .Where(entrance => entrance.GetBlockNumber() == entranceNumber))
-                            blockOfFlatsIndex2 = housingEstates[index3].GetEntrances().IndexOf(entrance);
-
-                        switch (splintedInput[0])
-                        {
-                            case "help":
-                                break;
-
-                            case "clear":
-                                Console.Clear();
-                                break;
-
-                            case "show":
-                                housingEstates[index3].GetEntrances()[blockOfFlatsIndex2].GetEntrances()[entranceIndex]
-                                    .GetFlats()[flatIndex[0]][flatIndex[1]].Show();
-                                break;
-
-                            case "exit":
-                                edited--;
-                                editing = editing.Substring(0, editing.Length - 2).TrimEnd('>');
-                                break;
-
-                            case "create":
-                                if (splintedInput.Length != 4)
-                                    break;
-                                housingEstates[index3].GetEntrances()[blockOfFlatsIndex2].GetEntrances()[entranceIndex]
-                                    .GetFlats()[flatIndex[0]][flatIndex[1]].AddResident(new Person(splintedInput[1],
-                                        splintedInput[2], int.Parse(splintedInput[3])));  //create firstName secondName age
-                                break;
-
-                            case "remove":
-                                if (splintedInput.Length != 2)
-                                    break;
-                                
-                                housingEstates[index3].GetEntrances()[blockOfFlatsIndex2].GetEntrances()[entranceIndex]
-                                    .GetFlats()[flatIndex[0]][flatIndex[1]].RemoveResident(splintedInput[1]);
-                                break;
-
-                            case "switch":
-                                if (splintedInput.Length != 2)
-                                    break;
-
-                                edited = 5;
-                                editing += $">{splintedInput[1]}";
-                                break;
-                        }
-
-                        break;
-
-                    case 5:
                         break;
                 }
+                
+                edited = UpdateEdited();
             }
         }
     }

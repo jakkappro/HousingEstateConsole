@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Runtime.InteropServices;
 
 namespace HousingEstateConsole
 {
@@ -8,10 +8,9 @@ namespace HousingEstateConsole
     {
         private int _entranceNumber;
         private int _floors;
-        private int _flatsPerFloor;
+        private readonly int _flatsPerFloor;
         private int _flatNumber;
-        private Dictionary<int, List<Flat>> _flats;
-
+        private List<Flat> _flats;
 
         public Entrance() : this(0, 0, 0)
         {
@@ -19,23 +18,20 @@ namespace HousingEstateConsole
         }
         public Entrance(int entranceNumber, int floors, int flatsPerFloor)
         {
-            _flats = new Dictionary<int, List<Flat>>();
+            _flats = new List<Flat>();
             _flatNumber = 1;
             _entranceNumber = entranceNumber;
             _floors = floors;
             _flatsPerFloor = flatsPerFloor;
             _flatNumber = 0;
 
-            for (var y = 0; y < _floors; y++)
-            {
-                var flats = new List<Flat>();
-                for (var i = 0; i < _flatsPerFloor; i++)
-                {
-                    flats.Add(new Flat(_flatNumber));
-                    _flatNumber += 1;
-                }
-                _flats.Add(y, flats);
-            }
+            CreateFlats(floors,floors);
+        }
+
+        public void ChangeFloors(int floors = 0)
+        {
+            CreateFlats(_floors, floors);
+            _floors = floors;
         }
 
         public int GetNumber()
@@ -51,42 +47,38 @@ namespace HousingEstateConsole
             _entranceNumber = number;
         }
 
-        public int GetFloors()
-        {
-            return _floors;
-        }
-
-        public void SetFloors(int floors)
-        {
-            _floors = floors;
-            //TODO:recalculate and add flats with numbers
-        }
-
-        public void AddFloors(int floors)
-        {
-            _floors += floors;
-            //TODO:recalculate and add flats with numbers
-        }
-
-        public int GetFlatsPerFloor()
-        {
-            return _flatsPerFloor;
-        }
-
-        public void SetFlatsPerFloor(int flats)
-        {
-            _flatsPerFloor += flats;
-            //TODO:recalculate and add flats with numbers
-        }
-
-        public int GetNumberOfHouses()
-        {
-            return _floors * _flatsPerFloor;
-        }
-
-        public Dictionary<int, List<Flat>> GetFlats()
+        public List<Flat> GetFlats()
         {
             return _flats;
+        }
+
+        private void CreateFlats(int oldFloors, int newFloors)
+        {
+            if (_flats.Count <= 0)
+            {
+                for (var floor = 0; floor < _floors; floor++)
+                {
+                    for (var flatNumber = 0; flatNumber < _flatsPerFloor; flatNumber++)
+                    {
+                        _flats.Add(new Flat(_flatNumber, floor));
+                        _flatNumber++;
+                    }
+                }
+            }
+            
+            else
+            {
+                _flatNumber = _flats[^1].GetNumber();
+                for (var floor = oldFloors; floor < newFloors; floor++)
+                {
+                    for (var flatNumber = 0; flatNumber < _flatsPerFloor; flatNumber++)
+                    {
+                        _flats.Add(new Flat(_flatNumber, floor));
+                        _flatNumber++;
+                    }
+                }
+                
+            }
         }
     }
 }

@@ -8,53 +8,29 @@ namespace HousingEstateConsole
     internal class BlockOfFlats
     {
         private List<Entrance> _entrances;
-        private readonly string _street;
+        private string _street;
         private int _entranceNumber;
-        private readonly int _blockOfFlatsNumber;
+        private int _blockOfFlatsNumber;
+        private int _floors;
+        private readonly int _flatsPerFloor;
         
-        public BlockOfFlats(string street, int entranceNumber, int blockOfFlatsNumber)
+        public BlockOfFlats(string street, int entranceNumber, int blockOfFlatsNumber, int floors, int flatsPerFloor)
         {
+            _floors = floors;
+            _flatsPerFloor = flatsPerFloor;
             _street = street;
             _entranceNumber = entranceNumber;
             _blockOfFlatsNumber = blockOfFlatsNumber;
             _entrances = new List<Entrance>();
         }
         
-        public void Add(Entrance entrance)
+        public void Add()
         {
-            entrance.SetNumber(_entranceNumber);
+            var entrance = new Entrance(_entranceNumber, _floors, _flatsPerFloor);
             _entrances.Add(entrance);
             _entranceNumber += 2;
         }
 
-        public void Add(IEnumerable<Entrance> entrances)
-        {
-            foreach (var entrance in entrances)
-            {
-                entrance.SetNumber(_entranceNumber);
-                _entrances.Add(entrance);
-                _entranceNumber += 2;
-            }
-        }
-
-        public void Remove(int number)
-        {
-            var buffer = _entrances.Where(entrance => entrance.GetNumber() != number).ToList();
-            _entrances.Clear();
-            _entrances = buffer;
-            //TODO: Fix removing now it remove entrance but doesnt change number of other entrances
-        }
-
-        public Entrance GetEntrance(int number)
-        {
-            foreach (var entrance in _entrances.Where(entrance => entrance.GetNumber() == number))
-            {
-                return entrance;
-            }
-            
-            throw new ArgumentException($"Entrance with number {number} does not exist.");
-        }
-        
         public List<Entrance> GetEntrances()
         {
             return _entrances;
@@ -65,17 +41,37 @@ namespace HousingEstateConsole
             return _street;
         }
 
+        public void SetStreet(string street)
+        {
+            _street = street;
+        }
+
         public int GetBlockNumber()
         {
             return _blockOfFlatsNumber;
         }
-        
-        public void Show()
+
+        public void SetBlockNumber(int number)
         {
-            Console.WriteLine("Street : " + _street +
-                              "Block of flats number : " + _blockOfFlatsNumber+
-                              "Number of entrances :" + _entrances.Count
-                              );
+            _blockOfFlatsNumber = number;
+        }
+
+        public int GetFlatsPerFloor()
+        {
+            return _flatsPerFloor;
+        }
+
+        public int GetFloors()
+        {
+            return _floors;
+        }
+
+        public void SetFloors(int floors)
+        {
+            _floors = floors;
+            
+            foreach(var entrance in _entrances)
+                entrance.ChangeFloors(floors);
         }
     }
 }
