@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace HousingEstateConsole
@@ -11,12 +12,13 @@ namespace HousingEstateConsole
         private readonly int _flatsPerFloor;
         private int _flatNumber;
         private List<Flat> _flats;
+        public BlockOfFlats _blockOfFlats;
 
-        public Entrance() : this(0, 0, 0)
+        public Entrance(ref BlockOfFlats blockOfFlats) : this(0, 0, 0, ref blockOfFlats)
         {
             
         }
-        public Entrance(int entranceNumber, int floors, int flatsPerFloor)
+        public Entrance(int entranceNumber, int floors, int flatsPerFloor, ref BlockOfFlats blockOfFlats)
         {
             _flats = new List<Flat>();
             _flatNumber = 1;
@@ -24,6 +26,7 @@ namespace HousingEstateConsole
             _floors = floors;
             _flatsPerFloor = flatsPerFloor;
             _flatNumber = 0;
+            _blockOfFlats = blockOfFlats;
 
             CreateFlats(floors,floors);
         }
@@ -52,15 +55,27 @@ namespace HousingEstateConsole
             return _flats;
         }
 
+        public List<Person> GetEntranceResidents()
+        {
+            var buffer = new List<Person>();
+            foreach (var flat in _flats)
+            {
+                buffer.AddRange(flat.GetResidents());
+            }
+
+            return buffer;
+        }
+
         private void CreateFlats(int oldFloors, int newFloors)
         {
+            var lel = this;
             if (_flats.Count <= 0)
             {
                 for (var floor = 0; floor < _floors; floor++)
                 {
                     for (var flatNumber = 0; flatNumber < _flatsPerFloor; flatNumber++)
                     {
-                        _flats.Add(new Flat(_flatNumber, floor));
+                        _flats.Add(new Flat(_flatNumber, floor, ref lel));
                         _flatNumber++;
                     }
                 }
@@ -73,7 +88,7 @@ namespace HousingEstateConsole
                 {
                     for (var flatNumber = 0; flatNumber < _flatsPerFloor; flatNumber++)
                     {
-                        _flats.Add(new Flat(_flatNumber, floor));
+                        _flats.Add(new Flat(_flatNumber, floor, ref lel));
                         _flatNumber++;
                     }
                 }

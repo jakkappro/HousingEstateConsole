@@ -42,5 +42,17 @@ namespace HousingEstateConsole
         {
             return _blockOfFlatses;
         }
+
+        public List<Person> GetHousingResidents()
+        {
+            var buffer = new List<Person>();
+
+            foreach (var block in _blockOfFlatses)
+            {
+                buffer.AddRange(block.GetBlockResidents());
+            }
+
+            return buffer;
+        }
     }
 }

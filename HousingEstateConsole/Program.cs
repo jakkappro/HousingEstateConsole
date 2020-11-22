@@ -82,6 +82,7 @@ namespace HousingEstateConsole
                 Console.WriteLine("remove -> removes block of flats");
                 Console.WriteLine("save   -> saves current housing estate");//TODO: saving doesn't work
                 Console.WriteLine("name   -> show name of housing estate");
+                Console.WriteLine("resident -> show information about resident");
 
                 Console.WriteLine("\nBlock of house commands:");
                 Console.WriteLine("create           -> creates new entrance");
@@ -147,8 +148,11 @@ namespace HousingEstateConsole
             switch (overloads[0])
             {
                 case "create": //TODO:Better control of user input, creates first entrance automaticly
-                    if(overloads.Length == 6)
-                        _housingEstates[_housingIndex].Add(new BlockOfFlats(overloads[1], int.Parse(overloads[2]), int.Parse(overloads[3]), int.Parse(overloads[4]), int.Parse(overloads[5])));
+                    var lel = _housingEstates[_housingIndex];
+                    if (overloads.Length == 6)
+                    {
+                        _housingEstates[_housingIndex].Add(new BlockOfFlats(overloads[1], int.Parse(overloads[2]), int.Parse(overloads[3]), int.Parse(overloads[4]), int.Parse(overloads[5]), ref lel));
+                    }
                     
                     else
                     {
@@ -167,7 +171,7 @@ namespace HousingEstateConsole
                         Console.Write("Flats per floor: ");
                         var fpf = int.Parse(Console.ReadLine()!);
                         
-                        _housingEstates[_housingIndex].Add(new BlockOfFlats(street, en, bofn, fl, fpf));
+                        _housingEstates[_housingIndex].Add(new BlockOfFlats(street, en, bofn, fl, fpf, ref lel));
                     }
                     
                     break;
@@ -195,6 +199,16 @@ namespace HousingEstateConsole
                 
                 case "name":
                     Console.WriteLine(_housingEstates[_housingIndex].GetName());
+                    
+                    break;
+                
+                case "resident":
+                    if (overloads.Length != 2)
+                        break;
+
+                    foreach (var resident in _housingEstates[_housingIndex].GetHousingResidents()
+                        .Where(resident => resident.GetFullName() == overloads[1]))
+                        resident.ShowInfo();
                     
                     break;
             }
@@ -279,8 +293,12 @@ namespace HousingEstateConsole
             switch (overloads[0])
             {
                 case "create":
+                    var lel =
+                         _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[
+                            _entranceIndex].GetFlats()[_flatIndex];
+                    
                     if (overloads.Length == 4)
-                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].AddResident(new Person(overloads[1], overloads[2], int.Parse(overloads[3])));
+                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].AddResident(new Person(overloads[1], overloads[2], int.Parse(overloads[3]), ref lel));
 
                     else
                     {
@@ -293,7 +311,7 @@ namespace HousingEstateConsole
                         Console.Write("Age: ");
                         var age = int.Parse(Console.ReadLine()!);
                         
-                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].AddResident(new Person(fName, lName, age));
+                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].AddResident(new Person(fName, lName, age, ref lel));
                     }
                     
                     break;

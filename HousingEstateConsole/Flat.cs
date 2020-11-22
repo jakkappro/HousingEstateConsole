@@ -7,15 +7,17 @@ namespace HousingEstateConsole
 {
     internal class Flat
     {
+        public Entrance _entrance;
         private readonly int _flatNumber;
         private readonly int _flatFloor;
         private List<Person> _residents;
 
-        public Flat(int flatNumber, int flatFloor)
+        public Flat(int flatNumber, int flatFloor, ref Entrance entrance)
         {
             _flatNumber = flatNumber;
             _flatFloor = flatFloor;
             _residents = new List<Person>();
+            _entrance = entrance;
         }
 
         public int GetNumber()

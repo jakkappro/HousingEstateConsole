@@ -13,8 +13,9 @@ namespace HousingEstateConsole
         private int _blockOfFlatsNumber;
         private int _floors;
         private readonly int _flatsPerFloor;
+        public HousingEstate _housingEstate;
         
-        public BlockOfFlats(string street, int entranceNumber, int blockOfFlatsNumber, int floors, int flatsPerFloor)
+        public BlockOfFlats(string street, int entranceNumber, int blockOfFlatsNumber, int floors, int flatsPerFloor, ref HousingEstate housingEstate)
         {
             _floors = floors;
             _flatsPerFloor = flatsPerFloor;
@@ -22,11 +23,13 @@ namespace HousingEstateConsole
             _entranceNumber = entranceNumber;
             _blockOfFlatsNumber = blockOfFlatsNumber;
             _entrances = new List<Entrance>();
+            _housingEstate = housingEstate;
         }
         
         public void Add()
         {
-            var entrance = new Entrance(_entranceNumber, _floors, _flatsPerFloor);
+            var lel = this;
+            var entrance = new Entrance(_entranceNumber, _floors, _flatsPerFloor, ref lel);
             _entrances.Add(entrance);
             _entranceNumber += 2;
         }
@@ -73,5 +76,17 @@ namespace HousingEstateConsole
             foreach(var entrance in _entrances)
                 entrance.ChangeFloors(floors);
         }
+
+        public List<Person> GetBlockResidents()
+        {
+            var buffer = new List<Person>();
+            
+            foreach(var entrance in _entrances)
+                buffer.AddRange(entrance.GetEntranceResidents());
+
+            return buffer;
+        }
+        
+        //TODO:add stuff like upratovacka ...
     }
 }
