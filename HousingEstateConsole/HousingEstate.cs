@@ -7,29 +7,26 @@ namespace HousingEstateConsole
 {
     internal class HousingEstate
     {
-        private string _name;
-        private List<BlockOfFlats> _blockOfFlatses;
+        public string Name { get; }
+
+        public List<BlockOfFlats> BlockOfFlats { get; }
+
         public HousingEstate(string name)
         {
-            _blockOfFlatses = new List<BlockOfFlats>();
-            _name = name;
+            BlockOfFlats = new List<BlockOfFlats>();
+            Name = name;
         }
 
         public void Add(BlockOfFlats blockOfFlats)
         {
-            _blockOfFlatses.Add(blockOfFlats);
+            BlockOfFlats.Add(blockOfFlats);
         }
-
-        public string GetName()
-        {
-            return _name;
-        }
-
+        
         public void Remove(int number)
         {
-            foreach (var blockOfFlatses in _blockOfFlatses.Where(blockOfFlatses => blockOfFlatses.GetBlockNumber() == number))
+            foreach (var blockOfFlatses in BlockOfFlats.Where(blockOfFlatses => blockOfFlatses.BlockOfFlatsNumber == number))
             {
-                _blockOfFlatses.Remove(blockOfFlatses);
+                BlockOfFlats.Remove(blockOfFlatses);
             }
         }
 
@@ -38,16 +35,11 @@ namespace HousingEstateConsole
             //TODO:
         }
 
-        public List<BlockOfFlats> GetBlockOfFlatses()
-        {
-            return _blockOfFlatses;
-        }
-
         public List<Person> GetHousingResidents()
         {
             var buffer = new List<Person>();
 
-            foreach (var block in _blockOfFlatses)
+            foreach (var block in BlockOfFlats)
             {
                 buffer.AddRange(block.GetBlockResidents());
             }

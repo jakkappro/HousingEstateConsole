@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace HousingEstateConsole
 {
     internal class Entrance
     {
-        private int _entranceNumber;
         private int _floors;
         private readonly int _flatsPerFloor;
         private int _flatNumber;
-        private List<Flat> _flats;
         public BlockOfFlats _blockOfFlats;
+
+        public List<Flat> Flats { get; private set; }
+
+        public int EntranceNumber { get; }
 
         public Entrance(ref BlockOfFlats blockOfFlats) : this(0, 0, 0, ref blockOfFlats)
         {
@@ -20,9 +20,8 @@ namespace HousingEstateConsole
         }
         public Entrance(int entranceNumber, int floors, int flatsPerFloor, ref BlockOfFlats blockOfFlats)
         {
-            _flats = new List<Flat>();
-            _flatNumber = 1;
-            _entranceNumber = entranceNumber;
+            Flats = new List<Flat>();
+            EntranceNumber = entranceNumber;
             _floors = floors;
             _flatsPerFloor = flatsPerFloor;
             _flatNumber = 0;
@@ -37,30 +36,12 @@ namespace HousingEstateConsole
             _floors = floors;
         }
 
-        public int GetNumber()
-        {
-            return _entranceNumber;
-        }
-
-        public void SetNumber(int number)
-        {
-            if(number < 0)
-                throw new ArgumentException("Entrance number can not be lower than 0.");
-            
-            _entranceNumber = number;
-        }
-
-        public List<Flat> GetFlats()
-        {
-            return _flats;
-        }
-
         public List<Person> GetEntranceResidents()
         {
             var buffer = new List<Person>();
-            foreach (var flat in _flats)
+            foreach (var flat in Flats)
             {
-                buffer.AddRange(flat.GetResidents());
+                buffer.AddRange(flat.Residents);
             }
 
             return buffer;
@@ -69,13 +50,13 @@ namespace HousingEstateConsole
         private void CreateFlats(int oldFloors, int newFloors)
         {
             var lel = this;
-            if (_flats.Count <= 0)
+            if (Flats.Count <= 0)
             {
                 for (var floor = 0; floor < _floors; floor++)
                 {
                     for (var flatNumber = 0; flatNumber < _flatsPerFloor; flatNumber++)
                     {
-                        _flats.Add(new Flat(_flatNumber, floor, ref lel));
+                        Flats.Add(new Flat(_flatNumber, floor, ref lel));
                         _flatNumber++;
                     }
                 }
@@ -83,12 +64,12 @@ namespace HousingEstateConsole
             
             else
             {
-                _flatNumber = _flats[^1].GetNumber();
+                _flatNumber = Flats[^1].FlatNumber;
                 for (var floor = oldFloors; floor < newFloors; floor++)
                 {
                     for (var flatNumber = 0; flatNumber < _flatsPerFloor; flatNumber++)
                     {
-                        _flats.Add(new Flat(_flatNumber, floor, ref lel));
+                        Flats.Add(new Flat(_flatNumber, floor, ref lel));
                         _flatNumber++;
                     }
                 }

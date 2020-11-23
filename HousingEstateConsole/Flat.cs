@@ -7,44 +7,32 @@ namespace HousingEstateConsole
 {
     internal class Flat
     {
-        public Entrance _entrance;
-        private readonly int _flatNumber;
-        private readonly int _flatFloor;
-        private List<Person> _residents;
+        public readonly Entrance Entrance;
+
+        public List<Person> Residents { get; private set; }
+
+        public int FlatNumber { get; }
+
+        public int FlatFloor { get; }
 
         public Flat(int flatNumber, int flatFloor, ref Entrance entrance)
         {
-            _flatNumber = flatNumber;
-            _flatFloor = flatFloor;
-            _residents = new List<Person>();
-            _entrance = entrance;
-        }
-
-        public int GetNumber()
-        {
-            return _flatNumber;
-        }
-
-        public int GetFloor()
-        {
-            return _flatFloor;
+            FlatNumber = flatNumber;
+            FlatFloor = flatFloor;
+            Residents = new List<Person>();
+            Entrance = entrance;
         }
 
         public void AddResident(Person resident)
         {
-            _residents.Add(resident);
+            Residents.Add(resident);
         }
         
         public void RemoveResident(string name)
         {
-            var buffer = _residents.Where(resident => resident.GetFullName() != name).ToList();
-            _residents.Clear();
-            _residents = buffer;
-        }
-
-        public List<Person> GetResidents()
-        {
-            return _residents;
+            var buffer = Residents.Where(resident => resident.GetFullName() != name).ToList();
+            Residents.Clear();
+            Residents = buffer;
         }
     }
 }

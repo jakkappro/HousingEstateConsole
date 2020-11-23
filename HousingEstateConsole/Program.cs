@@ -18,7 +18,7 @@ namespace HousingEstateConsole
         private static int _entranceIndex;
         private static int _blockOfFlatsIndex;
 
-        private static void UpdateIndexs()
+        private static void UpdateIndexes()
         {
             _flatIndex = -1;
             _personIndex = -1;
@@ -31,29 +31,29 @@ namespace HousingEstateConsole
 
             if (indexNames.Length > 2)
             {
-                foreach (var estate in _housingEstates.Where(estate => estate.GetName() == indexNames[1]))
+                foreach (var estate in _housingEstates.Where(estate => estate.Name == indexNames[1]))
                     _housingIndex = _housingEstates.IndexOf(estate);
             }
 
             if (indexNames.Length > 3)
             {
-                foreach (var blockOfFlats in _housingEstates[_housingIndex].GetBlockOfFlatses().Where(estate => estate.GetBlockNumber() == int.Parse(indexNames[2])))
-                    _blockOfFlatsIndex = _housingEstates[_housingIndex].GetBlockOfFlatses().IndexOf(blockOfFlats);
+                foreach (var blockOfFlats in _housingEstates[_housingIndex].BlockOfFlats.Where(estate => estate.BlockOfFlatsNumber == int.Parse(indexNames[2])))
+                    _blockOfFlatsIndex = _housingEstates[_housingIndex].BlockOfFlats.IndexOf(blockOfFlats);
             }
             if (indexNames.Length > 4)
             {
-                foreach (var entrance in _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances().Where(estate => estate.GetNumber() == int.Parse(indexNames[3])))
-                    _entranceIndex = _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances().IndexOf(entrance);
+                foreach (var entrance in _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances().Where(estate => estate.EntranceNumber == int.Parse(indexNames[3])))
+                    _entranceIndex = _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances().IndexOf(entrance);
             }
             if (indexNames.Length > 5)
             {
-                foreach (var flat in _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats().Where(flat => flat.GetNumber() == int.Parse(indexNames[4])))
-                    _flatIndex = _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats().IndexOf(flat);
+                foreach (var flat in _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats.Where(flat => flat.FlatNumber == int.Parse(indexNames[4])))
+                    _flatIndex = _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats.IndexOf(flat);
             }
             if (indexNames.Length > 6)
             {
-                foreach (var person in _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents().Where(person => person.GetFullName() == indexNames[5]))
-                    _flatIndex = _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents().IndexOf(person);
+                foreach (var person in _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats[_flatIndex].Residents.Where(person => person.GetFullName() == indexNames[5]))
+                    _flatIndex = _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats[_flatIndex].Residents.IndexOf(person);
             }
         }
 
@@ -136,8 +136,8 @@ namespace HousingEstateConsole
                     if (overloads.Length != 2)
                         break;
 
-                    foreach (var housing in _housingEstates.Where(housing => housing.GetName() == overloads[1]))
-                        _editing += housing.GetName() + ">";
+                    foreach (var housing in _housingEstates.Where(housing => housing.Name == overloads[1]))
+                        _editing += housing.Name + ">";
 
                     break;
             }
@@ -180,9 +180,9 @@ namespace HousingEstateConsole
                     if (overloads.Length != 2)
                         break;
 
-                    foreach (var block in _housingEstates[_housingIndex].GetBlockOfFlatses()
-                        .Where(block => block.GetBlockNumber() == int.Parse(overloads[1])))
-                        _editing += block.GetBlockNumber() + ">";
+                    foreach (var block in _housingEstates[_housingIndex].BlockOfFlats
+                        .Where(block => block.BlockOfFlatsNumber == int.Parse(overloads[1])))
+                        _editing += block.BlockOfFlatsNumber + ">";
                     
                     break;
                 
@@ -198,7 +198,7 @@ namespace HousingEstateConsole
                     break;
                 
                 case "name":
-                    Console.WriteLine(_housingEstates[_housingIndex].GetName());
+                    Console.WriteLine(_housingEstates[_housingIndex].Name);
                     
                     break;
                 
@@ -219,7 +219,7 @@ namespace HousingEstateConsole
             switch (overloads[0])
             {
                 case "create":
-                    _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].Add();
+                    _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Add();
 
                     break;
                 
@@ -227,41 +227,41 @@ namespace HousingEstateConsole
                     if (overloads.Length != 2)
                         break;
 
-                    foreach (var entrance in _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()
-                        .Where(entrance => entrance.GetNumber() == int.Parse(overloads[1])))
-                        _editing += entrance.GetNumber() + ">";
+                    foreach (var entrance in _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()
+                        .Where(entrance => entrance.EntranceNumber == int.Parse(overloads[1])))
+                        _editing += entrance.EntranceNumber + ">";
 
                     break;
                 
                 case "number":
                     if(overloads.Length == 2)
-                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].SetBlockNumber(int.Parse(overloads[1]));
+                        _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].BlockOfFlatsNumber = int.Parse(overloads[1]);
 
                     else
-                        Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetBlockNumber());
+                        Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].BlockOfFlatsNumber);
                     
                     break;
                 
                 case "street":
                     if(overloads.Length == 2)
-                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].SetStreet(overloads[1]);
+                        _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Street = overloads[1];
 
                     else
-                        Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetStreet());
+                        Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Street);
 
                     break;
                 
                 case "floors":
                     if(overloads.Length == 2)
-                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].SetFloors(int.Parse(overloads[1]));
+                        _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Floors = int.Parse(overloads[1]);
 
                     else
-                        Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetFloors());
+                        Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Floors);
 
                     break;
                 
                 case "flats_per_floors":
-                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetFlatsPerFloor());
+                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetFlatsPerFloor());
                     
                     break;
             }
@@ -275,14 +275,14 @@ namespace HousingEstateConsole
                     if (overloads.Length != 2)
                         break;
 
-                    foreach (var flat in _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()
-                        .Where(flat => flat.GetNumber() == int.Parse(overloads[1])))
-                        _editing += flat.GetNumber() + ">";
+                    foreach (var flat in _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats
+                        .Where(flat => flat.FlatNumber == int.Parse(overloads[1])))
+                        _editing += flat.FlatNumber + ">";
                     
                     break;
                 
                 case "number":
-                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetNumber());
+                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].EntranceNumber);
                     
                     break;
             }
@@ -294,11 +294,12 @@ namespace HousingEstateConsole
             {
                 case "create":
                     var lel =
-                         _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[
-                            _entranceIndex].GetFlats()[_flatIndex];
-                    
+                         _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[
+                            _entranceIndex].Flats[_flatIndex];
+
                     if (overloads.Length == 4)
-                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].AddResident(new Person(overloads[1], overloads[2], int.Parse(overloads[3]), ref lel));
+                        _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[
+                            _entranceIndex].Flats[_flatIndex].AddResident(new Person(overloads[1], overloads[2], int.Parse(overloads[3]), ref lel));
 
                     else
                     {
@@ -311,7 +312,7 @@ namespace HousingEstateConsole
                         Console.Write("Age: ");
                         var age = int.Parse(Console.ReadLine()!);
                         
-                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].AddResident(new Person(fName, lName, age, ref lel));
+                        _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats[_flatIndex].AddResident(new Person(fName, lName, age, ref lel));
                     }
                     
                     break;
@@ -321,8 +322,8 @@ namespace HousingEstateConsole
                     if (overloads.Length != 2)
                         break;
 
-                    foreach (var resident in _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex]
-                        .GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents()
+                    foreach (var resident in _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex]
+                        .GetEntrances()[_entranceIndex].Flats[_flatIndex].Residents
                         .Where(resident => resident.GetFullName() == overloads[1]))
                         _editing += resident.GetFullName() + ">";
 
@@ -332,17 +333,17 @@ namespace HousingEstateConsole
                     if (overloads.Length != 2)
                         break;
                     
-                    _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].RemoveResident(overloads[1]);
+                    _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats[_flatIndex].RemoveResident(overloads[1]);
                     
                     break;
                 
                 case "number":
-                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetNumber());
+                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats[_flatIndex].FlatNumber);
                     
                     break;
                 
                 case "floor":
-                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetFloor());
+                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats[_flatIndex].FlatFloor);
                     
                     break;
                 
@@ -354,27 +355,27 @@ namespace HousingEstateConsole
             switch (overloads[0])
             {
                 case "first_name":
-                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents()[_personIndex].GetFirstName());
+                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats[_flatIndex].Residents[_personIndex].FirstName);
                     
                     break;
                 
                 case "second_name":
-                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents()[_personIndex].GetSecondName());
+                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats[_flatIndex].Residents[_personIndex].SecondName);
                     
                     break;
                 
                 case "full_name":
                 case "name":
-                    Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents()[_personIndex].GetFullName());
+                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats[_flatIndex].Residents[_personIndex].GetFullName());
                     
                     break;
                 
                 case "age":
                     if(overloads.Length == 2)
-                        _housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents()[_personIndex].SetAge(int.Parse(overloads[1]));
+                        _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats[_flatIndex].Residents[_personIndex].Age = int.Parse(overloads[1]);
                     
                     else
-                        Console.WriteLine(_housingEstates[_housingIndex].GetBlockOfFlatses()[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].GetFlats()[_flatIndex].GetResidents()[_personIndex].GetAge());
+                        Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetEntrances()[_entranceIndex].Flats[_flatIndex].Residents[_personIndex].Age);
 
                     break;
             }
@@ -409,7 +410,7 @@ namespace HousingEstateConsole
 
                 var splitInput = input.Split(" ");
 
-                UpdateIndexs();
+                UpdateIndexes();
 
                 switch (splitInput[0])
                 {
@@ -445,7 +446,7 @@ namespace HousingEstateConsole
                         break;
 
                     default:
-                        UpdateIndexs();
+                        UpdateIndexes();
 
                         switch (edited)
                         {
