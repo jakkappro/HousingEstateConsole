@@ -208,7 +208,7 @@ namespace HousingEstateConsole
 
                     foreach (var resident in _housingEstates[_housingIndex].GetHousingResidents()
                         .Where(resident => resident.GetFullName() == overloads[1]))
-                        resident.ShowInfo();
+                        Console.WriteLine(resident.ShowInfo());
                     
                     break;
             }
