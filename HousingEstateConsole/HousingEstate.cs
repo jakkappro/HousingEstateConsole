@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
 namespace HousingEstateConsole
 {
-    internal class HousingEstate
+    public class HousingEstate
     {
         public string Name { get; }
 
-        public List<BlockOfFlats> BlockOfFlats { get; }
+        public List<BlockOfFlats> BlockOfFlats { get; private set; }
 
         public HousingEstate(string name)
         {
@@ -30,14 +31,49 @@ namespace HousingEstateConsole
             }
         }
 
-        public void Save()
+        public void Save(string path)
         {
-            //TODO:
+            path += "\\" + Name + ".txt";
+            if (File.Exists(path))
+                File.Delete(path);
+
+            using var sw = File.CreateText(path);
+            
+            sw.Write(@"\" + "\n" + "name: " +  Name + "\n");
+            sw.Write("\n;\n");
+            
+            foreach (var block in BlockOfFlats)
+            {
+                sw.Write(@"\\" + "\n");
+                sw.Write(block.GetData());
+                sw.Write("\n;\n");
+
+                foreach (var entrance in block.Entrances)
+                {
+                    sw.Write(@"\\\" + "\n");
+                    sw.Write($"entranceNumber: {entrance.EntranceNumber}");
+                    sw.Write("\n;\n");
+                    
+                    foreach (var flat in entrance.Flats)
+                    {
+                        sw.Write(@"\\\\" + "\n");
+                        sw.Write(flat.GetData());
+                        sw.Write("\n;\n");
+
+                        foreach (var person in flat.Residents)
+                        {
+                            sw.Write(@"\\\\\" + "\n" + person.GetFullName() + "\n");
+                            sw.Write(person.GetData());
+                            sw.Write("\n;\n");
+                        }
+                    }
+                }
+            }
         }
 
-        public List<Person> GetHousingResidents()
+        public List<Resident> GetHousingResidents()
         {
-            var buffer = new List<Person>();
+            var buffer = new List<Resident>();
 
             foreach (var block in BlockOfFlats)
             {

@@ -5,25 +5,25 @@ using System.Text;
 
 namespace HousingEstateConsole
 {
-    internal class Flat
+    public class Flat
     {
         public readonly Entrance Entrance;
 
-        public List<Person> Residents { get; private set; }
+        public List<Resident> Residents { get; private set; }
 
         public int FlatNumber { get; }
 
         public int FlatFloor { get; }
 
-        public Flat(int flatNumber, int flatFloor, ref Entrance entrance)
+        public Flat(int flatNumber, int flatFloor, Entrance entrance)
         {
             FlatNumber = flatNumber;
             FlatFloor = flatFloor;
-            Residents = new List<Person>();
+            Residents = new List<Resident>();
             Entrance = entrance;
         }
 
-        public void AddResident(Person resident)
+        public void AddResident(Resident resident)
         {
             Residents.Add(resident);
         }
@@ -34,5 +34,12 @@ namespace HousingEstateConsole
             Residents.Clear();
             Residents = buffer;
         }
+
+        public string GetData()
+        {
+            return $"flatNumber: {FlatNumber}\nflatFloor: {FlatFloor}";
+        }
     }
+    
+    //TODO: rozloha bytu a izby bytu
 }
