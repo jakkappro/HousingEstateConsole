@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace HousingEstateConsole
+﻿namespace HousingEstateConsole
 {
     public class Person
     {
@@ -33,6 +29,10 @@ namespace HousingEstateConsole
             _firstName = firstName;
             _secondName = secondName;
             _age = age;
+        }
+
+        protected Person()
+        {
         }
     }
 }

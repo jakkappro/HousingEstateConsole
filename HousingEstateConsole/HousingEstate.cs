@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace HousingEstateConsole
 {
-    public class HousingEstate
+    public class HousingEstate : IShowable
     {
-        public string Name { get; }
+        public string Name { get; set; }
 
         public List<BlockOfFlats> BlockOfFlats { get; private set; }
 
@@ -17,60 +16,7 @@ namespace HousingEstateConsole
             BlockOfFlats = new List<BlockOfFlats>();
             Name = name;
         }
-
-        public void Add(BlockOfFlats blockOfFlats)
-        {
-            BlockOfFlats.Add(blockOfFlats);
-        }
         
-        public void Remove(int number)
-        {
-            foreach (var blockOfFlatses in BlockOfFlats.Where(blockOfFlatses => blockOfFlatses.BlockOfFlatsNumber == number))
-            {
-                BlockOfFlats.Remove(blockOfFlatses);
-            }
-        }
-
-        public void Save(string path)
-        {
-            path += "\\" + Name + ".txt";
-            if (File.Exists(path))
-                File.Delete(path);
-
-            using var sw = File.CreateText(path);
-            
-            sw.Write(@"\" + "\n" + "name: " +  Name + "\n");
-            sw.Write("\n;\n");
-            
-            foreach (var block in BlockOfFlats)
-            {
-                sw.Write(@"\\" + "\n");
-                sw.Write(block.GetData());
-                sw.Write("\n;\n");
-
-                foreach (var entrance in block.Entrances)
-                {
-                    sw.Write(@"\\\" + "\n");
-                    sw.Write($"entranceNumber: {entrance.EntranceNumber}");
-                    sw.Write("\n;\n");
-                    
-                    foreach (var flat in entrance.Flats)
-                    {
-                        sw.Write(@"\\\\" + "\n");
-                        sw.Write(flat.GetData());
-                        sw.Write("\n;\n");
-
-                        foreach (var person in flat.Residents)
-                        {
-                            sw.Write(@"\\\\\" + "\n" + person.GetFullName() + "\n");
-                            sw.Write(person.GetData());
-                            sw.Write("\n;\n");
-                        }
-                    }
-                }
-            }
-        }
-
         public List<Resident> GetHousingResidents()
         {
             var buffer = new List<Resident>();
@@ -81,6 +27,37 @@ namespace HousingEstateConsole
             }
 
             return buffer;
+        }
+
+        public void Add(List<object> variables)
+        {
+            var block = new BlockOfFlats(variables[0] as string,
+                int.Parse(variables[1] as string ?? throw new ArgumentException()),
+                int.Parse(variables[2] as string ?? throw new ArgumentException()),
+                int.Parse(variables[3] as string ?? throw new ArgumentException()),
+                int.Parse(variables[4] as string ?? throw new ArgumentException()), this);
+            BlockOfFlats.Add(block);
+        }
+
+        public void Show()
+        {
+            
+        }
+
+        public void Change(string what, string to)
+        {
+            if (what == "name")
+                Name = to;
+        }
+
+        public IShowable GetParent()
+        {
+            return null;
+        }
+
+        public string GetWriteName()
+        {
+            return Name;
         }
     }
 }

@@ -1,6 +1,10 @@
-﻿namespace HousingEstateConsole
+﻿using System;
+using System.Collections.Generic;
+
+namespace HousingEstateConsole
 {
-    public class Resident : Person
+    [Serializable]
+    public class Resident : Person, IShowable
     {
         private readonly Flat _flat;
         
@@ -26,6 +30,44 @@
         public string GetData()
         {
             return $"firstName: {FirstName}\nsecondName: {SecondName}\nage: {Age}";
+        }
+
+        public void Add(List<object> variables)
+        {
+            
+        }
+
+        public void Show()
+        {
+            
+        }
+
+        public void Change(string what, string to)
+        {
+            switch (what)
+            {
+                case "firstName":
+                    FirstName = to;
+                    break;
+                
+                case "secondName":
+                    SecondName = to;
+                    break;
+                
+                case "age":
+                    Age = int.Parse(to);
+                    break;
+            }
+        }
+
+        public IShowable GetParent()
+        {
+            return _flat;
+        }
+
+        public string GetWriteName()
+        {
+            return GetFullName();
         }
     }
 }

@@ -1,689 +1,253 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace HousingEstateConsole
 {
     internal static class Program
     {
-        private static List<HousingEstate> _housingEstates;
-
-        private static bool _running;
-
-        private static string _editing;
-
-        private static int _flatIndex;
-        private static int _personIndex;
-        private static int _housingIndex;
-        private static int _entranceIndex;
-        private static int _blockOfFlatsIndex;
-
-        private static void UpdateIndexes()
-        {
-            _flatIndex = -1;
-            _personIndex = -1;
-            _housingIndex = -1;
-            _entranceIndex = -1;
-            _blockOfFlatsIndex = -1;
-
-
-            var indexNames = _editing.Split(">");
-
-            if (indexNames.Length > 2)
-            {
-                foreach (var estate in _housingEstates.Where(estate => estate.Name == indexNames[1]))
-                    _housingIndex = _housingEstates.IndexOf(estate);
-            }
-
-            if (indexNames.Length > 3)
-            {
-                foreach (var blockOfFlats in _housingEstates[_housingIndex].BlockOfFlats.Where(estate => estate.BlockOfFlatsNumber == int.Parse(indexNames[2])))
-                    _blockOfFlatsIndex = _housingEstates[_housingIndex].BlockOfFlats.IndexOf(blockOfFlats);
-            }
-            if (indexNames.Length > 4)
-            {
-                foreach (var entrance in _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances.Where(estate => estate.EntranceNumber == int.Parse(indexNames[3])))
-                    _entranceIndex = _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances.IndexOf(entrance);
-            }
-            if (indexNames.Length > 5)
-            {
-                foreach (var flat in _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats.Where(flat => flat.FlatNumber == int.Parse(indexNames[4])))
-                    _flatIndex = _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats.IndexOf(flat);
-            }
-            if (indexNames.Length > 6)
-            {
-                foreach (var person in _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats[_flatIndex].Residents.Where(person => person.GetFullName() == indexNames[5]))
-                    _flatIndex = _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats[_flatIndex].Residents.IndexOf(person);
-            }
-        }
-
-        private static void Help(string[] buffer)
-        {
-            var overloads = new List<string>();
-            for (var i = 1; i < buffer.Length; i++)
-                overloads.Add(buffer[i]);
-            
-            if (overloads.Count == 0)
-            {
-                Console.WriteLine("Global commands:");
-                Console.WriteLine("help  -> show information about command or all commands.");
-                Console.WriteLine("clear -> clears console");
-                Console.WriteLine("cls   -> clears console");
-                Console.WriteLine("exit  -> switch one unit behind or end a program");
-
-                Console.WriteLine("\nDefault commands:"); //TODO: create more reasonable name for group of commands, City is possible
-                Console.WriteLine("create -> creates new housing estate");
-                Console.WriteLine("load   -> loads housing estate from a file");
-                Console.WriteLine("switch -> switch to already existing housing estate");
-
-                Console.WriteLine("\nHousing estate commands:");
-                Console.WriteLine("create -> creates new block of flats");
-                Console.WriteLine("switch -> switch to already existing block of flats");
-                Console.WriteLine("remove -> removes block of flats");
-                Console.WriteLine("save   -> saves current housing estate");
-                Console.WriteLine("name   -> show name of housing estate");
-                Console.WriteLine("resident -> show information about resident");
-
-                Console.WriteLine("\nBlock of house commands:");
-                Console.WriteLine("create           -> creates new entrance");
-                Console.WriteLine("switch           -> switch to already existing entrance");
-                Console.WriteLine("number           -> show or change block of flats number");
-                Console.WriteLine("street           -> show or change block of flats street");
-                Console.WriteLine("floors           -> show or change block of flats floors");
-                Console.WriteLine("flats_per_floors -> show block of flats flats per floor");
-
-                Console.WriteLine("\nEntrance commands:");
-                Console.WriteLine("switch -> switch to flat");
-                Console.WriteLine("number -> show entrance number");
-
-                Console.WriteLine("\nFlat commands:");
-                Console.WriteLine("create -> creates new resident");
-                Console.WriteLine("switch -> switch to already existing resident");
-                Console.WriteLine("remove -> removes resident");
-                Console.WriteLine("number -> show flat number");
-                Console.WriteLine("floor  -> show flat floor");
-
-                Console.WriteLine("\nResident commands:");
-                
-            }
-            else
-            {
-                //TODO: create definition and usage for commands maybe new class for command
-            }
-        }
-
-        private static void Default(string[] overloads)
-        {
-            switch (overloads[0])
-            {
-                case "create":
-                    if (overloads.Length == 2)
-                        _housingEstates.Add(new HousingEstate(overloads[1]));
-                    
-                    else
-                    {
-                        Console.Write("Please insert name of housing estate: ");
-                        var name = Console.ReadLine();
-                        _housingEstates.Add(new HousingEstate(name));
-                    }
-                    
-                    break;
-                
-                case "load":
-                    if (overloads.Length != 2)
-                        break;
-
-                    if (!File.Exists(overloads[1]))
-                        break;
-
-                    var data = File.ReadAllLines(overloads[1]);
-
-                    LoadData(data.ToList());
-                    
-                    break;
-                
-                case "switch":
-                    if (overloads.Length != 2)
-                        break;
-
-                    foreach (var housing in _housingEstates.Where(housing => housing.Name == overloads[1]))
-                        _editing += housing.Name + ">";
-
-                    break;
-            }
-        }
-
-        private enum LoadetData
-        {
-            HousingEstate,
-            BlockOfFlats,
-            Entrance,
-            Flat,
-            Person,
-            Nothing
-        }
-
-        private static void LoadData(List<string> data)
-        {
-            var workingOn = LoadetData.Nothing;
-            
-            var passData = new object[6];
-
-            foreach (var line in data)
-            {
-                workingOn = line switch
-                {
-                    @"\" => LoadetData.HousingEstate,
-                    @"\\" => LoadetData.BlockOfFlats,
-                    @"\\\" => LoadetData.Entrance,
-                    @"\\\\" => LoadetData.Flat,
-                    @"\\\\\" => LoadetData.Person,
-                    _ => workingOn
-                };
-
-                if (line == ";")
-                {
-                    switch (workingOn)
-                    {
-                        case LoadetData.HousingEstate:
-                            var housing = new HousingEstate(passData[0] as string);
-                            _housingEstates.Add(housing);
-                            _housingIndex = _housingEstates.IndexOf(housing);
-                            
-                            break;
-                        
-                        case LoadetData.BlockOfFlats:
-                            var block = new BlockOfFlats(passData[0] as string, passData[1] is int ? (int) passData[1] : 0, passData[2] is int ? (int) passData[2] : 0, passData[3] is int ? (int) passData[3] : 0, passData[4] is int ? (int) passData[4] : 0, _housingEstates[_housingIndex]);
-                            _housingEstates[_housingIndex].Add(block);
-                            _blockOfFlatsIndex = _housingEstates[_housingIndex].BlockOfFlats.IndexOf(block);
-                            
-                            break;
-                        
-                        case LoadetData.Entrance:
-                            block = _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex];
-                            var entrance = new Entrance(passData[0] is int ? (int) passData[0] : 0, block.Floors, block.GetFlatsPerFloor(), block, true);
-                            block.Entrances.Add(entrance);
-                            _entranceIndex = block.Entrances.IndexOf(entrance);
-                            
-                            break;
-                        
-                        case LoadetData.Flat:
-                            entrance = _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex]
-                                .Entrances[_entranceIndex];
-                            var flat = new Flat(passData[0] is int ? (int) passData[0] : 0, passData[1] is int ? (int) passData[1] : 0, entrance);
-                            entrance.Flats.Add(flat);
-                            _flatIndex = entrance.Flats.IndexOf(flat);
-                            
-                            break;
-                        
-                        case LoadetData.Person:
-                            flat = _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex]
-                                .Entrances[_entranceIndex].Flats[_flatIndex];
-                            var resident = new Resident(passData[0] as string, passData[1] as string, passData[2] is int ? (int) passData[2] : 0, flat);
-                            flat.Residents.Add(resident);
-                            
-                            break;
-                        
-                        default:
-                            throw new ArgumentOutOfRangeException();
-                    }
-                    continue;
-                }
-
-                var buffer = line.Split(" ");
-
-                switch (workingOn)
-                {
-                    case LoadetData.HousingEstate:
-                        if (buffer.Length != 2)
-                            break;
-                        
-                        if(buffer[0] == "name:")
-                            passData[0] = buffer[1];
-
-                        break;
-                    
-                    case LoadetData.BlockOfFlats:
-                        if (buffer.Length != 2)
-                            break;
-
-                        switch (buffer[0])
-                        {
-                            case "street:":
-                                passData[0] = buffer[1];
-
-                                break;
-                            
-                            case "entranceNumber:":
-                                passData[1] = int.Parse(buffer[1]);
-                                
-                                break;
-                            
-                            case "blockOfFlatsNumber:":
-                                passData[2] = int.Parse(buffer[1]);
-
-                                break;
-                            
-                            case "floors:":
-                                passData[3] = int.Parse(buffer[1]);
-
-                                break;
-                            
-                            case "flatsPerFloor:":
-                                passData[4] = int.Parse(buffer[1]);
-
-                                break;
-                        }
-                        
-                        break;
-                    
-                    case LoadetData.Entrance:
-                        if (buffer.Length != 2)
-                            break;
-
-                        if (buffer[0] == "entranceNumber:")
-                            passData[0] = int.Parse(buffer[1]);
-                        
-                        break;
-                    
-                    case LoadetData.Flat:
-                        if (buffer.Length != 2)
-                            break;
-
-                        switch (buffer[0])
-                        {
-                            case "flatNumber:":
-                                passData[0] = int.Parse(buffer[1]);
-
-                                break;
-                            
-                            case "flatFloor:":
-                                passData[1] = int.Parse(buffer[1]);
-                                
-                                break;
-                        }
-                        
-                        break;
-                    
-                    case LoadetData.Person:
-                        if (buffer.Length != 2)
-                            break;
-
-                        switch (buffer[0])
-                        {
-                            case "firstName:":
-                                passData[0] = buffer[1];
-
-                                break;
-                            
-                            case "secondName:":
-                                passData[1] = buffer[1];
-
-                                break;
-                            
-                            case "age:":
-                                passData[2] = int.Parse(buffer[1]);
-
-                                break;
-                        }
-                        
-                        break;
-
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            }
-        }
-
-        private static void Housing(string[] overloads)
-        {
-            switch (overloads[0])
-            {
-                case "create": //TODO:Better control of user input, creates first entrance automaticly
-                    var lel = _housingEstates[_housingIndex];
-                    if (overloads.Length == 6)
-                    {
-                        _housingEstates[_housingIndex].Add(new BlockOfFlats(overloads[1], int.Parse(overloads[2]), int.Parse(overloads[3]), int.Parse(overloads[4]), int.Parse(overloads[5]), lel));
-                    }
-                    
-                    else
-                    {
-                        Console.Write("Street: ");
-                        var street = Console.ReadLine();
-                        
-                        Console.Write("First entrance number: ");
-                        var en = int.Parse(Console.ReadLine()!);
-                        
-                        Console.Write("Block of flats number: ");
-                        var bofn = int.Parse(Console.ReadLine()!);
-                        
-                        Console.Write("Floors: ");
-                        var fl = int.Parse(Console.ReadLine()!);
-                        
-                        Console.Write("Flats per floor: ");
-                        var fpf = int.Parse(Console.ReadLine()!);
-                        
-                        _housingEstates[_housingIndex].Add(new BlockOfFlats(street, en, bofn, fl, fpf, lel));
-                    }
-                    
-                    break;
-                
-                case "switch":
-                    if (overloads.Length != 2)
-                        break;
-
-                    foreach (var block in _housingEstates[_housingIndex].BlockOfFlats
-                        .Where(block => block.BlockOfFlatsNumber == int.Parse(overloads[1])))
-                        _editing += block.BlockOfFlatsNumber + ">";
-                    
-                    break;
-                
-                case "remove":
-                    if (overloads.Length != 2)
-                        break;
-                    
-                    _housingEstates[_housingIndex].Remove(int.Parse(overloads[1]));
-                    
-                    break;
-                
-                case "save":
-                    if (overloads.Length != 2)
-                        break;
-                    
-                    _housingEstates[_housingIndex].Save(overloads[1]);
-                    
-                    break;
-                
-                case "name":
-                    Console.WriteLine(_housingEstates[_housingIndex].Name);
-                    
-                    break;
-                
-                case "resident":
-                    if (overloads.Length != 2)
-                        break;
-
-                    foreach (var resident in _housingEstates[_housingIndex].GetHousingResidents()
-                        .Where(resident => resident.GetFullName() == overloads[1]))
-                        Console.WriteLine(resident.ShowInfo());
-                    
-                    break;
-            }
-        }
-
-        private static void Block(string[] overloads)
-        {
-            switch (overloads[0])
-            {
-                case "create":
-                    _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Add();
-
-                    break;
-                
-                case "switch":
-                    if (overloads.Length != 2)
-                        break;
-
-                    foreach (var entrance in _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances
-                        .Where(entrance => entrance.EntranceNumber == int.Parse(overloads[1])))
-                        _editing += entrance.EntranceNumber + ">";
-
-                    break;
-                
-                case "number":
-                    if(overloads.Length == 2)
-                        _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].BlockOfFlatsNumber = int.Parse(overloads[1]);
-
-                    else
-                        Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].BlockOfFlatsNumber);
-                    
-                    break;
-                
-                case "street":
-                    if(overloads.Length == 2)
-                        _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Street = overloads[1];
-
-                    else
-                        Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Street);
-
-                    break;
-                
-                case "floors":
-                    if(overloads.Length == 2)
-                        _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Floors = int.Parse(overloads[1]);
-
-                    else
-                        Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Floors);
-
-                    break;
-                
-                case "flats_per_floors":
-                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].GetFlatsPerFloor());
-                    
-                    break;
-            }
-        }
-
-        private static void Entrance(string[] overloads)
-        {
-            switch (overloads[0])
-            {
-                case "switch":
-                    if (overloads.Length != 2)
-                        break;
-
-                    foreach (var flat in _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats
-                        .Where(flat => flat.FlatNumber == int.Parse(overloads[1])))
-                        _editing += flat.FlatNumber + ">";
-                    
-                    break;
-                
-                case "number":
-                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].EntranceNumber);
-                    
-                    break;
-            }
-        }
-
-        private static void Flat(string[] overloads)
-        {
-            switch (overloads[0])
-            {
-                case "create":
-                    var lel =
-                         _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[
-                            _entranceIndex].Flats[_flatIndex];
-
-                    if (overloads.Length == 4)
-                        _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[
-                            _entranceIndex].Flats[_flatIndex].AddResident(new Resident(overloads[1], overloads[2], int.Parse(overloads[3]), lel));
-
-                    else
-                    {
-                        Console.Write("First name: ");
-                        var fName = Console.ReadLine();
-
-                        Console.Write("Last name: ");
-                        var lName = Console.ReadLine();
-
-                        Console.Write("Age: ");
-                        var age = int.Parse(Console.ReadLine()!);
-                        
-                        _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats[_flatIndex].AddResident(new Resident(fName, lName, age, lel));
-                    }
-                    
-                    break;
-                
-                
-                case "switch": //Format of name is firstName_secondName 
-                    if (overloads.Length != 2)
-                        break;
-
-                    foreach (var resident in _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex]
-                        .Entrances[_entranceIndex].Flats[_flatIndex].Residents
-                        .Where(resident => resident.GetFullName() == overloads[1]))
-                        _editing += resident.GetFullName() + ">";
-
-                    break;
-                
-                case "remove":
-                    if (overloads.Length != 2)
-                        break;
-                    
-                    _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats[_flatIndex].RemoveResident(overloads[1]);
-                    
-                    break;
-                
-                case "number":
-                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats[_flatIndex].FlatNumber);
-                    
-                    break;
-                
-                case "floor":
-                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats[_flatIndex].FlatFloor);
-                    
-                    break;
-                
-            }
-        }
-
-        private static void Person(string[] overloads)
-        {
-            switch (overloads[0])
-            {
-                case "first_name":
-                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats[_flatIndex].Residents[_personIndex].FirstName);
-                    
-                    break;
-                
-                case "second_name":
-                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats[_flatIndex].Residents[_personIndex].SecondName);
-                    
-                    break;
-                
-                case "full_name":
-                case "name":
-                    Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats[_flatIndex].Residents[_personIndex].GetFullName());
-                    
-                    break;
-                
-                case "age":
-                    if(overloads.Length == 2)
-                        _housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats[_flatIndex].Residents[_personIndex].Age = int.Parse(overloads[1]);
-                    
-                    else
-                        Console.WriteLine(_housingEstates[_housingIndex].BlockOfFlats[_blockOfFlatsIndex].Entrances[_entranceIndex].Flats[_flatIndex].Residents[_personIndex].Age);
-
-                    break;
-            }
-        }
-
-        private static int UpdateEdited()
-        {
-            var buffer = _editing;
-            return buffer.Split(">").Length - 2;
-        }
-
         private static void Main()
         {
-            _running = true;
-            _editing = ">";
-            _housingEstates = new List<HousingEstate>();
-            _entranceIndex = 0;
-            _flatIndex = 0;
+            var input = "";
+            var editing = 0;
+            
+            CityManager.Init("default");
 
-            var edited = 0;
-
-            Console.WriteLine("Housing Estate  console. For help type help.");
-
-            while (_running)
+            while (input != "quit")
             {
-                Console.Write(_editing);
+                Console.WriteLine($"U are editing {CityManager._showAble.GetType().ToString().Substring(21)} with name {CityManager._showAble.GetWriteName()} now.");
+                //TODO: list possible commands
+                Console.Write(">");
+                input = Console.ReadLine();
                 
-                var input = Console.ReadLine();
-
-                if (string.IsNullOrEmpty(input))
-                    continue;
-
-                var splitInput = input.Split(" ");
-
-                UpdateIndexes();
-
-                switch (splitInput[0])
+                if (input != null)
                 {
-                    case var x when x.Contains("help"):
-                        Help(splitInput);
-
-                        break;
-
-                    case "clear":
-                    case "cls":
-                        Console.Clear();
-
-                        break;
-
-                    case "exit":
-                        if (_editing.Length > 1)    
+                    var splitInput = input.Split(" ");
+                    
+                    if (splitInput[0] == "resident" && splitInput.Length == 2)
+                    {
+                        var names = new List<string>();
+                        while (CityManager._showAble.GetType() != typeof(HousingEstate))
                         {
-                            var buffer = new string(_editing.Substring(0, _editing.Length - 2));
-                            var splitBuffer = buffer.Split('>');
-                            buffer = "";
-                            
-                            for (var i = 0; i < splitBuffer.Length - 1; i++)
+                            names.Add(CityManager._showAble.GetWriteName());
+                            CityManager.Exit();
+                        }
+
+                        var buffer = (HousingEstate) CityManager._showAble;
+                        foreach (var people in buffer.GetHousingResidents()
+                            .Where(p => p.GetFullName() == splitInput[1]))
+                        {
+                            Console.WriteLine(people.GetData());
+                        }
+
+                        names.Reverse();
+
+                        foreach (var name in names)
+                        {
+                            CityManager.Switch(name);
+                        }
+
+                        Console.ReadKey();
+                    }
+                    
+                    switch (editing)
+                    {
+                        case 0:
+
+                            switch (splitInput[0])
                             {
-                                buffer += splitBuffer[i] + ">";
+                                case "create":
+                                    if (splitInput.Length == 6)
+                                    {
+                                        var buffer = new List<object>();
+                                        for(var i = 1; i < splitInput.Length; i++)
+                                            buffer.Add(splitInput[i]);//TODO: get variables from user if he doesn't give them
+                                        
+                                        CityManager.Create(buffer);
+                                    }
+
+                                    break;
+                                
+                                case "exit":
+                                    input = "quit";
+                                    
+                                    break;
+                                
+                                case "change":
+                                    if (splitInput.Length != 3)
+                                        break; //TODO: show possible changes
+                                    
+                                    CityManager.Change(splitInput[1], splitInput[2]);
+
+                                    break;
+                                
+                                case "switch":
+                                    if (splitInput.Length != 2)
+                                        break;//TODO: get next hop
+                                    
+                                    editing = CityManager.Switch(splitInput[1]) ? 1 : 0;
+
+                                    break;
+                                
+                                case "show":
+                                    CityManager.Show();
+                                    Console.ReadKey();
+
+                                    break;
                             }
 
-                            _editing = buffer;
-                        }
+                            break;
+                    
+                        case 1:
                             
-                        else
-                            _running = false;
+                            switch (splitInput[0])
+                            {
+                                case "create":
+                                    CityManager.Create(null);
 
-                        break;
+                                    break;
+                                
+                                case "exit":
+                                    CityManager.Exit();
+                                    
+                                    break;
+                                
+                                case "change":
+                                    if (splitInput.Length != 3)
+                                        break; //TODO: show possible changes
+                                    
+                                    CityManager.Change(splitInput[1], splitInput[2]);
 
-                    default:
-                        switch (edited)
-                        {
-                            case 0:
-                                Default(splitInput);//done
+                                    break;
+                                
+                                case "switch":
+                                    if (splitInput.Length != 2)
+                                        break;//TODO: get next hop
+                                    
+                                    editing = CityManager.Switch(splitInput[1]) ? 2 : 1;
 
-                                break;
+                                    break;
+                                
+                                case "show":
+                                    CityManager.Show();
+                                    Console.ReadKey();
 
-                            case 1:
-                                Housing(splitInput);//done better user input
+                                    break;
+                            }
 
-                                break;
+                            break;
+                    
+                        case 2:
+                            
+                            switch (splitInput[0])
+                            {
+                                case "exit":
+                                    CityManager.Exit();
+                                    
+                                    break;
+                                
+                                case "change":
+                                    if (splitInput.Length != 3)
+                                        break; //TODO: show possible changes
+                                    
+                                    CityManager.Change(splitInput[1], splitInput[2]);
 
-                            case 2:
-                                Block(splitInput);//done
+                                    break;
+                                
+                                case "switch":
+                                    if (splitInput.Length != 2)
+                                        break;//TODO: get next hop
+                                    
+                                    editing = CityManager.Switch(splitInput[1]) ? 3 : 2;
 
-                                break;
+                                    break;
+                                
+                                case "show":
+                                    CityManager.Show();
+                                    Console.ReadKey();
 
-                            case 3:
-                                Entrance(splitInput);//done
+                                    break;
+                            }
 
-                                break;
+                            break;
 
-                            case 4:
-                                Flat(splitInput);//done
+                        case 3:
+                            
+                            switch (splitInput[0])
+                            {
+                                case "create":
+                                    if (splitInput.Length != 4)
+                                        break;
+                                    
+                                    var buffer = new List<object>();
+                                    for(var i = 1; i < splitInput.Length; i++)
+                                        buffer.Add(splitInput[i]);
+                                    CityManager.Create(buffer);
 
-                                break;
+                                    break;
+                                
+                                case "exit":
+                                    CityManager.Exit();
+                                    
+                                    break;
+                                
+                                case "change":
+                                    if (splitInput.Length != 3)
+                                        break; //TODO: show possible changes
+                                    
+                                    CityManager.Change(splitInput[1], splitInput[2]);
 
-                            case 5:
-                                Person(splitInput);//done
+                                    break;
+                                
+                                case "switch":
+                                    if (splitInput.Length != 2)
+                                        break;//TODO: get next hop
+                                    
+                                    editing = CityManager.Switch(splitInput[1]) ? 4 : 3;
 
-                                break;
-                        }
+                                    break;
+                                
+                                case "show":
+                                    CityManager.Show();
+                                    Console.ReadKey();
 
-                        break;
+                                    break;
+                            }
+
+                            break;
+
+                        case 4:
+                            
+                            switch (splitInput[0])
+                            {
+                                case "exit":
+                                    CityManager.Exit();
+                                    
+                                    break;
+                                
+                                case "change":
+                                    if (splitInput.Length != 3)
+                                        break; //TODO: show possible changes
+                                    
+                                    CityManager.Change(splitInput[1], splitInput[2]);
+
+                                    break;
+
+                                case "show":
+                                    CityManager.Show();
+                                    Console.ReadKey();
+
+                                    break;
+                            }
+
+                            break;
+                    }
                 }
                 
-                edited = UpdateEdited();
+                Console.Clear();
             }
         }
     }
 }
 
-//TODO: dir/ls
+//TODO: dir/ls, make property of some variables

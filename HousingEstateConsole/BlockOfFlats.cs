@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace HousingEstateConsole
 {
-    public class BlockOfFlats
+    public class BlockOfFlats : IShowable
     {
         private int _entranceNumber;
         private int _floors;
@@ -41,19 +42,6 @@ namespace HousingEstateConsole
             _housingEstate = housingEstate;
         }
         
-        public void Add()
-        {
-            var lel = this;
-            var entrance = new Entrance(_entranceNumber, Floors, _flatsPerFloor, lel);
-            Entrances.Add(entrance);
-            _entranceNumber += 2;
-        }
-
-        public int GetFlatsPerFloor()
-        {
-            return _flatsPerFloor;
-        }
-
         public List<Resident> GetBlockResidents()
         {
             var buffer = new List<Resident>();
@@ -65,9 +53,42 @@ namespace HousingEstateConsole
         }
         
         //TODO:add stuffs like upratovacka ...
-        public string GetData()
+
+        public void Add(List<object> variables)
         {
-            return $"street: {Street}\nentranceNumber: {_entranceNumber}\nblockOfFlatsNumber: {BlockOfFlatsNumber}\nfloors: {_floors}\nflatsPerFloor: {_flatsPerFloor}\n";
+            var entrance = new Entrance(_entranceNumber, _floors, _flatsPerFloor, this);
+            
+            Entrances.Add(entrance);
+            _entranceNumber += 2;
+        }
+
+        public void Show()
+        {
+            
+        }
+
+        public void Change(string what, string to)
+        {
+            switch (what)
+            {
+                case "street":
+                    Street = to;
+                    break;
+                
+                case "number":
+                    BlockOfFlatsNumber = int.Parse(to);
+                    break;
+            }
+        }
+
+        public IShowable GetParent()
+        {
+            return _housingEstate;
+        }
+
+        public string GetWriteName()
+        {
+            return BlockOfFlatsNumber.ToString();
         }
     }
 }

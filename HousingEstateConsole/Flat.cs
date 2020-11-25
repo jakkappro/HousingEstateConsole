@@ -5,11 +5,11 @@ using System.Text;
 
 namespace HousingEstateConsole
 {
-    public class Flat
+    public class Flat : IShowable
     {
         public readonly Entrance Entrance;
 
-        public List<Resident> Residents { get; private set; }
+        public List<Resident> Residents { get; }
 
         public int FlatNumber { get; }
 
@@ -22,22 +22,31 @@ namespace HousingEstateConsole
             Residents = new List<Resident>();
             Entrance = entrance;
         }
-
-        public void AddResident(Resident resident)
+        
+        public void Add(List<object> variables)
         {
+            var resident = new Resident(variables[0] as string, variables[1] as string, int.Parse(variables[2] as string ?? throw new ArgumentException()), this);
             Residents.Add(resident);
         }
-        
-        public void RemoveResident(string name)
+
+        public void Show()
         {
-            var buffer = Residents.Where(resident => resident.GetFullName() != name).ToList();
-            Residents.Clear();
-            Residents = buffer;
+            
         }
 
-        public string GetData()
+        public void Change(string what, string to)
         {
-            return $"flatNumber: {FlatNumber}\nflatFloor: {FlatFloor}";
+            
+        }
+
+        public IShowable GetParent()
+        {
+            return Entrance;
+        }
+
+        public string GetWriteName()
+        {
+            return FlatNumber.ToString();
         }
     }
     

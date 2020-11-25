@@ -1,23 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace HousingEstateConsole
 {
-    public class Entrance
+    public class Entrance : IShowable
     {
         private int _floors;
         private readonly int _flatsPerFloor;
         private int _flatNumber;
         public BlockOfFlats _blockOfFlats;
 
-        public List<Flat> Flats { get; set; }
+        public List<Flat> Flats { get; }
 
         public int EntranceNumber { get; }
-
-        public Entrance(BlockOfFlats blockOfFlats) : this(0, 0, 0, blockOfFlats)
-        {
-            
-        }
+        
         public Entrance(int entranceNumber, int floors, int flatsPerFloor, BlockOfFlats blockOfFlats, bool auto = false)
         {
             Flats = new List<Flat>();
@@ -76,6 +73,31 @@ namespace HousingEstateConsole
                 }
                 
             }
+        }
+
+        public void Add(List<object> variables)
+        {
+            
+        }
+
+        public void Show()
+        {
+            
+        }
+
+        public void Change(string what, string to)
+        {
+            
+        }
+
+        public IShowable GetParent()
+        {
+            return _blockOfFlats;
+        }
+
+        public string GetWriteName()
+        {
+            return EntranceNumber.ToString();
         }
     }
 }

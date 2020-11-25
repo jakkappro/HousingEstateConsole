@@ -1,0 +1,17 @@
+﻿using System.Collections.Generic;
+
+namespace HousingEstateConsole
+{
+    public interface IShowable
+    {
+        public void Add(List<object> variables);
+
+        public void Show();
+
+        public void Change(string what, string to);
+
+        public IShowable GetParent();
+
+        public string GetWriteName();
+    }
+}
