@@ -13,5 +13,7 @@ namespace HousingEstateConsole
         public IShowable GetParent();
 
         public string GetWriteName();
+
+        public string GetStructure();
     }
 }

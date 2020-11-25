@@ -48,6 +48,18 @@ namespace HousingEstateConsole
         {
             return FlatNumber.ToString();
         }
+
+        public string GetStructure()
+        {
+            var buffer = "";
+
+            foreach (var resident in Residents)
+            {
+                buffer += resident.GetWriteName() + "\n";
+            }
+
+            return buffer;
+        }
     }
     
     //TODO: rozloha bytu a izby bytu

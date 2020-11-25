@@ -69,5 +69,10 @@ namespace HousingEstateConsole
         {
             return GetFullName();
         }
+
+        public string GetStructure()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

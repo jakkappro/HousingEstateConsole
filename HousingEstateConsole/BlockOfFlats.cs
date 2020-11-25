@@ -90,5 +90,17 @@ namespace HousingEstateConsole
         {
             return BlockOfFlatsNumber.ToString();
         }
+
+        public string GetStructure()
+        {
+            var buffer = "";
+
+            foreach (var entrance in Entrances)
+            {
+                buffer += entrance.EntranceNumber + "\n";
+            }
+
+            return buffer;
+        }
     }
 }

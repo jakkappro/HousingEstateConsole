@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace HousingEstateConsole
@@ -84,6 +85,27 @@ namespace HousingEstateConsole
         {
             var housing = new HousingEstate(name);
             _showAble = housing;
+        }
+
+        public static string GetDir(Type type)
+        {
+            if (type == typeof(Resident))
+                return "";
+            
+            var names = new List<string>();
+            while (_showAble.GetType() != type)
+            {
+                names.Add(_showAble.GetWriteName());
+                Exit();
+            }
+
+            var ret = _showAble.GetStructure();
+
+            foreach (var name in names)
+            {
+                Switch(name);
+            }
+            return ret;
         }
     }
 }

@@ -99,5 +99,17 @@ namespace HousingEstateConsole
         {
             return EntranceNumber.ToString();
         }
+
+        public string GetStructure()
+        {
+            var buffer = "";
+
+            foreach (var flat in Flats)
+            {
+                buffer += flat.FlatNumber + "\n";
+            }
+
+            return buffer;
+        }
     }
 }

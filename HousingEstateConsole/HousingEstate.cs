@@ -59,5 +59,10 @@ namespace HousingEstateConsole
         {
             return Name;
         }
+
+        public string GetStructure()
+        {
+            return BlockOfFlats.Aggregate("", (current, block) => current + block.BlockOfFlatsNumber.ToString() + "\n");
+        }
     }
 }
