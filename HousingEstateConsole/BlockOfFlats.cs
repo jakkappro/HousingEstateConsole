@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace HousingEstateConsole
 {
     public class BlockOfFlats : IShowable
     {
+        private int area;
+        private int rooms;
         private int _entranceNumber;
         private int _floors;
         private readonly int _flatsPerFloor;
@@ -31,7 +32,7 @@ namespace HousingEstateConsole
             }
         }
 
-        public BlockOfFlats(string street, int entranceNumber, int blockOfFlatsNumber, int floors, int flatsPerFloor, HousingEstate housingEstate)
+        public BlockOfFlats(string street, int entranceNumber, int blockOfFlatsNumber, int floors, int flatsPerFloor, int area, int rooms, HousingEstate housingEstate)
         {
             Floors = floors;
             _flatsPerFloor = flatsPerFloor;
@@ -40,6 +41,8 @@ namespace HousingEstateConsole
             BlockOfFlatsNumber = blockOfFlatsNumber;
             Entrances = new List<Entrance>();
             _housingEstate = housingEstate;
+            this.area = area;
+            this.rooms = rooms;
         }
         
         public List<Resident> GetBlockResidents()
@@ -56,7 +59,7 @@ namespace HousingEstateConsole
 
         public void Add(List<object> variables)
         {
-            var entrance = new Entrance(_entranceNumber, _floors, _flatsPerFloor, this);
+            var entrance = new Entrance(_entranceNumber, _floors, _flatsPerFloor, area, rooms,this);
             
             Entrances.Add(entrance);
             _entranceNumber += 2;

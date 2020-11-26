@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace HousingEstateConsole
@@ -35,7 +34,10 @@ namespace HousingEstateConsole
                 int.Parse(variables[1] as string ?? throw new ArgumentException()),
                 int.Parse(variables[2] as string ?? throw new ArgumentException()),
                 int.Parse(variables[3] as string ?? throw new ArgumentException()),
-                int.Parse(variables[4] as string ?? throw new ArgumentException()), this);
+                int.Parse(variables[4] as string ?? throw new ArgumentException()),
+                int.Parse(variables[5] as string ?? throw new ArgumentException()),
+                int.Parse(variables[6] as string ?? throw new ArgumentException()),
+                this);
             BlockOfFlats.Add(block);
         }
 

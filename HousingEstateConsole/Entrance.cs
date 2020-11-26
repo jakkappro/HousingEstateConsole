@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Transactions;
 
 namespace HousingEstateConsole
 {
@@ -10,12 +11,14 @@ namespace HousingEstateConsole
         private readonly int _flatsPerFloor;
         private int _flatNumber;
         public BlockOfFlats _blockOfFlats;
+        private int area;
+        private int rooms;
 
         public List<Flat> Flats { get; }
 
         public int EntranceNumber { get; }
         
-        public Entrance(int entranceNumber, int floors, int flatsPerFloor, BlockOfFlats blockOfFlats, bool auto = false)
+        public Entrance(int entranceNumber, int floors, int flatsPerFloor, int area, int rooms, BlockOfFlats blockOfFlats, bool auto = false)
         {
             Flats = new List<Flat>();
             EntranceNumber = entranceNumber;
@@ -23,6 +26,9 @@ namespace HousingEstateConsole
             _flatsPerFloor = flatsPerFloor;
             _flatNumber = 0;
             _blockOfFlats = blockOfFlats;
+
+            this.rooms = rooms;
+            this.area = area;
 
             if(!auto)
                 CreateFlats(floors,floors);
@@ -54,7 +60,7 @@ namespace HousingEstateConsole
                 {
                     for (var flatNumber = 0; flatNumber < _flatsPerFloor; flatNumber++)
                     {
-                        Flats.Add(new Flat(_flatNumber, floor, lel));
+                        Flats.Add(new Flat(_flatNumber, floor, area, rooms, lel));
                         _flatNumber++;
                     }
                 }
@@ -67,7 +73,7 @@ namespace HousingEstateConsole
                 {
                     for (var flatNumber = 0; flatNumber < _flatsPerFloor; flatNumber++)
                     {
-                        Flats.Add(new Flat(_flatNumber, floor, lel));
+                        Flats.Add(new Flat(_flatNumber, floor, area, rooms, lel));
                         _flatNumber++;
                     }
                 }

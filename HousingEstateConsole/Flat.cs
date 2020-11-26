@@ -14,13 +14,19 @@ namespace HousingEstateConsole
         public int FlatNumber { get; }
 
         public int FlatFloor { get; }
+        
+        private int FlatArea { get; set; }
+        
+        private int FlatRooms { get; set; }
 
-        public Flat(int flatNumber, int flatFloor, Entrance entrance)
+        public Flat(int flatNumber, int flatFloor, int flatArea, int flatRooms,Entrance entrance)
         {
             FlatNumber = flatNumber;
             FlatFloor = flatFloor;
             Residents = new List<Resident>();
             Entrance = entrance;
+            FlatArea = flatArea;
+            FlatRooms = flatRooms;
         }
         
         public void Add(List<object> variables)
@@ -36,7 +42,18 @@ namespace HousingEstateConsole
 
         public void Change(string what, string to)
         {
-            
+            switch (what)
+            {
+                case "area":
+                    FlatArea = int.Parse(to);
+
+                    break;
+                
+                case "rooms":
+                    FlatRooms = int.Parse(to);
+
+                    break;
+            }
         }
 
         public IShowable GetParent()
