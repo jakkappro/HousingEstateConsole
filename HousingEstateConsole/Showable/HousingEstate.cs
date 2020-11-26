@@ -41,9 +41,9 @@ namespace HousingEstateConsole
             BlockOfFlats.Add(block);
         }
 
-        public void Show()
+        public string Show()
         {
-            
+            return $"This is housing estate with name {Name}. It has {GetHousingResidents().Count} residents in {BlockOfFlats.Count} block of flats.";
         }
 
         public void Change(string what, string to)
@@ -54,7 +54,7 @@ namespace HousingEstateConsole
 
         public IShowable GetParent()
         {
-            return null;
+            throw new Exception();
         }
 
         public string GetWriteName()

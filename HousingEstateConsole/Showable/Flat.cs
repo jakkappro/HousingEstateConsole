@@ -35,9 +35,9 @@ namespace HousingEstateConsole
             Residents.Add(resident);
         }
 
-        public void Show()
+        public string Show()
         {
-            
+            return $"This is flat with number {FlatNumber}. This flat is on {FlatFloor} and has {FlatRooms} rooms. {Residents.Count} residents live here.";
         }
 
         public void Change(string what, string to)

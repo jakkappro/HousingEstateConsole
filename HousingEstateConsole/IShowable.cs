@@ -6,7 +6,7 @@ namespace HousingEstateConsole
     {
         public void Add(List<object> variables);
 
-        public void Show();
+        public string Show();
 
         public void Change(string what, string to);
 

@@ -5,20 +5,20 @@
         protected string _firstName;
         protected string _secondName;
         protected int _age;
-        
-        public string FirstName
+
+        protected string FirstName
         {
             get => _firstName;
             set => _firstName = value;
         }
 
-        public string SecondName
+        protected string SecondName
         {
             get => _secondName;
             set => _secondName = value;
         }
 
-        public int Age
+        protected int Age
         {
             get => _age;
             set => _age = value;

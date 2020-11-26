@@ -65,9 +65,9 @@ namespace HousingEstateConsole
             _entranceNumber += 2;
         }
 
-        public void Show()
+        public string Show()
         {
-            
+            return $"This is block of flats with number {BlockOfFlatsNumber}. It has {GetBlockResidents().Count} residents in {Entrances.Count} entrances. This block of flats is on street {Street} and has {Floors} floors.";
         }
 
         public void Change(string what, string to)

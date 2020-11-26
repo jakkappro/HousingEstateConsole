@@ -15,6 +15,9 @@ namespace HousingEstateConsole
 
         public static bool Switch(string to)
         {
+            if (!int.TryParse(to, out _) && _showAble.GetType() != typeof(Flat))
+                return false;
+            
             switch (_showAble)
             {
                 case HousingEstate buffer:
@@ -71,11 +74,6 @@ namespace HousingEstateConsole
         {
         }
 
-        public static void Show()
-        {
-            _showAble.Show();
-        }
-
         public static void Change(string what, string to)
         {
             _showAble.Change(what, to);
@@ -85,27 +83,6 @@ namespace HousingEstateConsole
         {
             var housing = new HousingEstate(name);
             _showAble = housing;
-        }
-
-        public static string GetDir(Type type)
-        {
-            if (type == typeof(Resident))
-                return "";
-            
-            var names = new List<string>();
-            while (_showAble.GetType() != type)
-            {
-                names.Add(_showAble.GetWriteName());
-                Exit();
-            }
-
-            var ret = _showAble.GetStructure();
-
-            foreach (var name in names)
-            {
-                Switch(name);
-            }
-            return ret;
         }
     }
 }

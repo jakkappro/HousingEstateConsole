@@ -86,9 +86,9 @@ namespace HousingEstateConsole
             
         }
 
-        public void Show()
+        public string Show()
         {
-            
+            return $"This is entrance with number {EntranceNumber}. There is {GetEntranceResidents().Count} residents in {Flats.Count} flats.";
         }
 
         public void Change(string what, string to)

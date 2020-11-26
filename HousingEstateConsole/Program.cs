@@ -37,7 +37,7 @@ namespace HousingEstateConsole
             var editing = 0;
 
             CityManager.Init("default");
-
+            
             while (input != "quit")
             {
                 Console.WriteLine(
@@ -50,312 +50,232 @@ namespace HousingEstateConsole
                 {
                     var splitInput = input.Split(" ");
 
-                    if (splitInput[0] == "resident" && splitInput.Length == 2)
+                    switch (splitInput[0])
                     {
-                        var names = new List<string>();
-                        while (CityManager._showAble.GetType() != typeof(HousingEstate))
-                        {
-                            names.Add(CityManager._showAble.GetWriteName());
-                            CityManager.Exit();
-                        }
-
-                        var buffer = (HousingEstate) CityManager._showAble;
-                        foreach (var people in buffer.GetHousingResidents()
-                            .Where(p => p.GetFullName() == splitInput[1]))
-                        {
-                            Console.WriteLine(people.GetData());
-                        }
-
-                        names.Reverse();
-
-                        foreach (var name in names)
-                        {
-                            CityManager.Switch(name);
-                        }
-
-                        Console.ReadKey();
-                    }
-
-                    switch (editing)
-                    {
-                        case 0:
-
-                            switch (splitInput[0])
+                        case "resident":
+                            if (splitInput.Length != 2)
+                                break;
+                            
+                            var names = new List<string>();
+                            while (CityManager._showAble.GetType() != typeof(HousingEstate))
                             {
-                                case "create":
-                                    var buffer = new List<object>();
+                                names.Add(CityManager._showAble.GetWriteName());
+                                CityManager.Exit();
+                            }
 
-                                    if (splitInput.Length == 8)
+                            var housing = (HousingEstate) CityManager._showAble;
+                            foreach (var people in housing.GetHousingResidents()
+                                .Where(p => p.GetFullName() == splitInput[1]))
+                            {
+                                Console.WriteLine(people.Show());
+                            }
+
+                            names.Reverse();
+
+                            foreach (var name in names)
+                            {
+                                CityManager.Switch(name);
+                            }
+
+                            Console.ReadKey();
+
+                            break;
+                        
+                        case "exit":
+                            try
+                            {
+                                CityManager.Exit();
+                                editing--;
+                            }
+                            catch (Exception _)
+                            {
+                                input = "quit";
+                            }
+
+                            break;
+                        
+                        case "show":
+                            Console.WriteLine(CityManager._showAble.Show());
+                            Console.ReadKey();
+                        
+                            break;
+                        
+                        case "switch":
+                            if (splitInput.Length != 2)
+                            {
+                                Console.WriteLine("Next possible hops:");
+                                Console.WriteLine(CityManager._showAble.GetStructure());
+                                var hop = Console.ReadLine();
+                                editing = CityManager.Switch(hop) ? editing + 1 : editing;
+
+                                break;
+                            }
+
+                            editing = CityManager.Switch(splitInput[1]) ? editing + 1 : editing;
+
+                            break;
+                        
+                        default:
+                            switch (editing)
+                            {
+                                case 0:
+
+                                    switch (splitInput[0])
                                     {
-                                        for (var i = 1; i < splitInput.Length; i++)
-                                            buffer.Add(splitInput[i]);
+                                        case "create":
+                                            var buffer = new List<object>();
 
-                                        CityManager.Create(buffer);
+                                            if (splitInput.Length == 8)
+                                            {
+                                                for (var i = 1; i < splitInput.Length; i++)
+                                                    buffer.Add(splitInput[i]);
 
-                                        break;
-                                    }
+                                                CityManager.Create(buffer);
 
-                                    buffer.Add(GetInput("Street: "));
+                                                break;
+                                            }
 
-                                    buffer.Add(GetInput("Entrance number:", true));
+                                            buffer.Add(GetInput("Street: "));
 
-                                    buffer.Add(GetInput("Block of flats number: ", true));
+                                            buffer.Add(GetInput("Entrance number: ", true));
 
-                                    buffer.Add(GetInput("Floors: ", true));
+                                            buffer.Add(GetInput("Block of flats number: ", true));
 
-                                    buffer.Add(GetInput("Flats per floor: ", true));
+                                            buffer.Add(GetInput("Floors: ", true));
 
-                                    buffer.Add(GetInput("Area: ", true));
+                                            buffer.Add(GetInput("Flats per floor: ", true));
+
+                                            buffer.Add(GetInput("Area: ", true));
                                     
-                                    buffer.Add(GetInput("Rooms: ", true));
+                                            buffer.Add(GetInput("Rooms: ", true));
 
-                                    CityManager.Create(buffer);
+                                            CityManager.Create(buffer);
 
-                                    break;
-
-                                case "exit":
-                                    input = "quit";
-
-                                    break;
-
-                                case "change":
-                                    if (splitInput.Length != 3)
-                                    {
-                                        CityManager.Change(splitInput[1], splitInput[2]);
-
-                                        break;
-                                    }
-
-                                    Console.WriteLine(
-                                        "Only changeable variable is name. If you want change name type name new_name");
-
-                                    splitInput = Console.ReadLine().Split(" ");
-
-                                    if (splitInput.Length != 2)
-                                        break;
-
-                                    CityManager.Change(splitInput[0], splitInput[1]);
-
-                                    break;
-
-                                case "switch":
-                                    if (splitInput.Length != 2)
-                                    {
-                                        Console.WriteLine("Next possible hops:");
-                                        Console.WriteLine(CityManager.GetDir(typeof(HousingEstate)));
-                                        var hop = Console.ReadLine();
-                                        editing = CityManager.Switch(hop) ? 1 : 0;
-
-                                        break;
-                                    }
-
-                                    editing = CityManager.Switch(splitInput[1]) ? 1 : 0;
-
-                                    break;
-
-                                case "show":
-                                    CityManager.Show();
-                                    Console.ReadKey();
-
-                                    break;
-                            }
-
-                            break;
-
-                        case 1:
-
-                            switch (splitInput[0])
-                            {
-                                case "create":
-                                    CityManager.Create(null);
-
-                                    break;
-
-                                case "exit":
-                                    CityManager.Exit();
-
-                                    break;
-
-                                case "change":
-                                    if (splitInput.Length != 3)
-                                    {
-                                        Console.WriteLine("You can change name or number of current block of flats. Type changing chane");
-                                        splitInput = Console.ReadLine().Split(" ");
-
-                                        if (splitInput.Length != 2)
                                             break;
 
-                                        CityManager.Change(splitInput[0], splitInput[1]);
+                                        case "change":
+                                            if (splitInput.Length == 3)
+                                            {
+                                                CityManager.Change(splitInput[1], splitInput[2]);
 
-                                        break;
-                                    }
+                                                break;
+                                            }
 
-                                    CityManager.Change(splitInput[1], splitInput[2]);
+                                            Console.WriteLine(
+                                                "Only changeable variable is name. If you want change name type name new_name");
 
-                                    break;
+                                            splitInput = Console.ReadLine().Split(" ");
 
-                                case "switch":
-                                    if (splitInput.Length != 2)
-                                    {
-                                        Console.WriteLine("Next possible hops:");
-                                        Console.WriteLine(CityManager.GetDir(typeof(BlockOfFlats)));
-                                        var hop = Console.ReadLine();
-                                        editing = CityManager.Switch(hop) ? 1 : 0;
+                                            if (splitInput.Length != 2)
+                                                break;
 
-                                        break;
-                                    }
+                                            CityManager.Change(splitInput[0], splitInput[1]);
 
-                                    editing = CityManager.Switch(splitInput[1]) ? 2 : 1;
-
-                                    break;
-
-                                case "show":
-                                    CityManager.Show();
-                                    Console.ReadKey();
-
-                                    break;
-                            }
-
-                            break;
-
-                        case 2:
-
-                            switch (splitInput[0])
-                            {
-                                case "exit":
-                                    CityManager.Exit();
-
-                                    break;
-                                
-
-                                case "switch":
-                                    if (splitInput.Length != 2)
-                                    {
-                                        Console.WriteLine("Next possible hops:");
-                                        Console.WriteLine(CityManager.GetDir(typeof(Entrance)));
-                                        var hop = Console.ReadLine();
-                                        editing = CityManager.Switch(hop) ? 1 : 0;
-
-                                        break;
-                                    }
-
-                                    editing = CityManager.Switch(splitInput[1]) ? 3 : 2;
-
-                                    break;
-
-                                case "show":
-                                    CityManager.Show();
-                                    Console.ReadKey();
-
-                                    break;
-                            }
-
-                            break;
-
-                        case 3:
-
-                            switch (splitInput[0])
-                            {
-                                case "create":
-                                    var buffer = new List<object>();
-
-                                    if (splitInput.Length != 4)
-                                    {
-                                        buffer.Add(GetInput("First name: "));
-
-                                        buffer.Add(GetInput("Second name: "));
-
-                                        buffer.Add(GetInput("Age: ", true));
-
-
-                                        break;
-                                    }
-
-
-                                    for (var i = 1; i < splitInput.Length; i++)
-                                        buffer.Add(splitInput[i]);
-
-                                    CityManager.Create(buffer);
-
-                                    break;
-
-                                case "exit":
-                                    CityManager.Exit();
-
-                                    break;
-
-                                case "change":
-                                    if (splitInput.Length != 3)
-                                    {
-                                        Console.WriteLine("You can change area or rooms of this flat. You can change it by writing changing change");
-                                        splitInput = Console.ReadLine()?.Split(" ");
-
-                                        if (splitInput.Length != 2)
                                             break;
-                                        
-                                        CityManager.Change(splitInput[0], splitInput[1]);
-                                        
-                                        break;
                                     }
 
-                                    CityManager.Change(splitInput[1], splitInput[2]);
-
                                     break;
 
-                                case "switch":
-                                    if (splitInput.Length != 2)
+                                case 1:
+
+                                    switch (splitInput[0])
                                     {
-                                        Console.WriteLine("Next possible hops:");
-                                        Console.WriteLine(CityManager.GetDir(typeof(Flat)));
-                                        var hop = Console.ReadLine();
-                                        editing = CityManager.Switch(hop) ? 1 : 0;
+                                        case "create":
+                                            CityManager.Create(null);
 
-                                        break;
-                                    }
-
-                                    editing = CityManager.Switch(splitInput[1]) ? 4 : 3;
-
-                                    break;
-
-                                case "show":
-                                    CityManager.Show();
-                                    Console.ReadKey();
-
-                                    break;
-                            }
-
-                            break;
-
-                        case 4:
-
-                            switch (splitInput[0])
-                            {
-                                case "exit":
-                                    CityManager.Exit();
-
-                                    break;
-
-                                case "change":
-                                    if (splitInput.Length != 3)
-                                    {
-                                        Console.WriteLine("You can change firstName or secondName or age of this person. You can change it by writing changing change");
-                                        splitInput = Console.ReadLine().Split(" ");
-
-                                        if (splitInput.Length != 2)
                                             break;
-                                        
-                                        CityManager.Change(splitInput[0], splitInput[1]);
-                                        
-                                        break;
-                                    }
 
-                                    CityManager.Change(splitInput[1], splitInput[2]);
+                                        case "change":
+                                            if (splitInput.Length != 3)
+                                            {
+                                                Console.WriteLine("You can change name or number of current block of flats. Type changing chane");
+                                                splitInput = Console.ReadLine().Split(" ");
+
+                                                if (splitInput.Length != 2)
+                                                    break;
+
+                                                CityManager.Change(splitInput[0], splitInput[1]);
+
+                                                break;
+                                            }
+
+                                            CityManager.Change(splitInput[1], splitInput[2]);
+
+                                            break;
+                                    }
 
                                     break;
 
-                                case "show":
-                                    CityManager.Show();
-                                    Console.ReadKey();
+                                case 3:
+
+                                    switch (splitInput[0])
+                                    {
+                                        case "create":
+                                            var buffer = new List<object>();
+
+                                            if (splitInput.Length != 4)
+                                            {
+                                                buffer.Add(GetInput("First name: "));
+
+                                                buffer.Add(GetInput("Second name: "));
+
+                                                buffer.Add(GetInput("Age: ", true));
+
+
+                                                break;
+                                            }
+
+
+                                            for (var i = 1; i < splitInput.Length; i++)
+                                                buffer.Add(splitInput[i]);
+
+                                            CityManager.Create(buffer);
+
+                                            break;
+
+                                        case "change":
+                                            if (splitInput.Length != 3)
+                                            {
+                                                Console.WriteLine("You can change area or rooms of this flat. You can change it by writing changing change");
+                                                splitInput = Console.ReadLine()?.Split(" ");
+
+                                                if (splitInput.Length != 2)
+                                                    break;
+                                        
+                                                CityManager.Change(splitInput[0], splitInput[1]);
+                                        
+                                                break;
+                                            }
+
+                                            CityManager.Change(splitInput[1], splitInput[2]);
+
+                                            break;
+                                    }
+
+                                    break;
+
+                                case 4:
+
+                                    switch (splitInput[0])
+                                    {
+                                        case "change":
+                                            if (splitInput.Length != 3)
+                                            {
+                                                Console.WriteLine("You can change firstName or secondName or age of this person. You can change it by writing changing change");
+                                                splitInput = Console.ReadLine().Split(" ");
+
+                                                if (splitInput.Length != 2)
+                                                    break;
+                                        
+                                                CityManager.Change(splitInput[0], splitInput[1]);
+                                        
+                                                break;
+                                            }
+
+                                            CityManager.Change(splitInput[1], splitInput[2]);
+
+                                            break;
+                                    }
 
                                     break;
                             }
