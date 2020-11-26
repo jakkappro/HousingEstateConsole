@@ -1,29 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace HousingEstateConsole
 {
     public static class CityManager
     {
-        public static IShowable _showAble;
+        public static IShowable ShowAble;
 
         public static void Exit()
         {
-            _showAble = _showAble.GetParent();
+            ShowAble = ShowAble.GetParent();
         }
 
         public static bool Switch(string to)
         {
-            if (!int.TryParse(to, out _) && _showAble.GetType() != typeof(Flat))
+            if (!int.TryParse(to, out _) && ShowAble.GetType() != typeof(Flat))
                 return false;
             
-            switch (_showAble)
+            switch (ShowAble)
             {
                 case HousingEstate buffer:
                     foreach (var block in buffer.BlockOfFlats.Where(block => block.BlockOfFlatsNumber == int.Parse(to)))
                     {
-                        _showAble = block;
+                        ShowAble = block;
                         return true;
                     }
 
@@ -33,7 +32,7 @@ namespace HousingEstateConsole
                     foreach (var entrance in buffer.Entrances.Where(
                         entrance => entrance.EntranceNumber == int.Parse(to)))
                     {
-                        _showAble = entrance;
+                        ShowAble = entrance;
                         return true;
                     }
 
@@ -42,7 +41,7 @@ namespace HousingEstateConsole
                 case Entrance buffer:
                     foreach (var flat in buffer.Flats.Where(flat => flat.FlatNumber == int.Parse(to)))
                     {
-                        _showAble = flat;
+                        ShowAble = flat;
                         return true;
                     }
 
@@ -51,7 +50,7 @@ namespace HousingEstateConsole
                 case Flat buffer:
                     foreach (var resident in buffer.Residents.Where(resident => resident.GetFullName() == to))
                     {
-                        _showAble = resident;
+                        ShowAble = resident;
                         return true;
                     }
 
@@ -63,7 +62,7 @@ namespace HousingEstateConsole
 
         public static void Create(List<object> variables)
         {
-            _showAble.Add(variables);
+            ShowAble.Add(variables);
         }
 
         public static void Save()
@@ -76,13 +75,13 @@ namespace HousingEstateConsole
 
         public static void Change(string what, string to)
         {
-            _showAble.Change(what, to);
+            ShowAble.Change(what, to);
         }
 
         public static void Init(string name)
         {
             var housing = new HousingEstate(name);
-            _showAble = housing;
+            ShowAble = housing;
         }
     }
 }

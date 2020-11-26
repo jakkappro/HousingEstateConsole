@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace HousingEstateConsole
 {
@@ -68,14 +67,7 @@ namespace HousingEstateConsole
 
         public string GetStructure()
         {
-            var buffer = "";
-
-            foreach (var resident in Residents)
-            {
-                buffer += resident.GetWriteName() + "\n";
-            }
-
-            return buffer;
+            return Residents.Aggregate("", (current, resident) => current + (resident.GetWriteName() + "\n"));
         }
     }
     

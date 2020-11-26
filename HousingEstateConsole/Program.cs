@@ -41,7 +41,7 @@ namespace HousingEstateConsole
             while (input != "quit")
             {
                 Console.WriteLine(
-                    $"U are editing {CityManager._showAble.GetType().ToString().Substring(21)} with name {CityManager._showAble.GetWriteName()} now.");
+                    $"U are editing {CityManager.ShowAble.GetType().ToString().Substring(21)} with name {CityManager.ShowAble.GetWriteName()} now.");
                 //TODO: list possible commands
                 Console.Write(">");
                 input = Console.ReadLine();
@@ -57,13 +57,13 @@ namespace HousingEstateConsole
                                 break;
                             
                             var names = new List<string>();
-                            while (CityManager._showAble.GetType() != typeof(HousingEstate))
+                            while (CityManager.ShowAble.GetType() != typeof(HousingEstate))
                             {
-                                names.Add(CityManager._showAble.GetWriteName());
+                                names.Add(CityManager.ShowAble.GetWriteName());
                                 CityManager.Exit();
                             }
 
-                            var housing = (HousingEstate) CityManager._showAble;
+                            var housing = (HousingEstate) CityManager.ShowAble;
                             foreach (var people in housing.GetHousingResidents()
                                 .Where(p => p.GetFullName() == splitInput[1]))
                             {
@@ -87,7 +87,7 @@ namespace HousingEstateConsole
                                 CityManager.Exit();
                                 editing--;
                             }
-                            catch (Exception _)
+                            catch (Exception)
                             {
                                 input = "quit";
                             }
@@ -95,7 +95,7 @@ namespace HousingEstateConsole
                             break;
                         
                         case "show":
-                            Console.WriteLine(CityManager._showAble.Show());
+                            Console.WriteLine(CityManager.ShowAble.Show());
                             Console.ReadKey();
                         
                             break;
@@ -104,7 +104,7 @@ namespace HousingEstateConsole
                             if (splitInput.Length != 2)
                             {
                                 Console.WriteLine("Next possible hops:");
-                                Console.WriteLine(CityManager._showAble.GetStructure());
+                                Console.WriteLine(CityManager.ShowAble.GetStructure());
                                 var hop = Console.ReadLine();
                                 editing = CityManager.Switch(hop) ? editing + 1 : editing;
 

@@ -4,7 +4,6 @@
     {
         protected string _firstName;
         protected string _secondName;
-        protected int _age;
 
         protected string FirstName
         {
@@ -18,21 +17,14 @@
             set => _secondName = value;
         }
 
-        protected int Age
-        {
-            get => _age;
-            set => _age = value;
-        }
+        protected int Age { get; set; }
 
         protected Person(string firstName, string secondName, int age)
         {
             _firstName = firstName;
             _secondName = secondName;
-            _age = age;
+            Age = age;
         }
 
-        protected Person()
-        {
-        }
     }
 }
