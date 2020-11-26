@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Xml.Serialization;
 
 namespace HousingEstateConsole
 {
@@ -27,10 +29,10 @@ namespace HousingEstateConsole
                     buffer = Console.ReadLine();
                 }
             }
-            
+
             return buffer;
         }
-        
+
         private static void Main()
         {
             var input = "";
@@ -113,6 +115,35 @@ namespace HousingEstateConsole
 
                             editing = CityManager.Switch(splitInput[1]) ? editing + 1 : editing;
 
+                            break;
+                        
+                        case "save":
+                            var nnames = new List<string>();
+                            while (CityManager.ShowAble.GetType() != typeof(HousingEstate))
+                            {
+                                nnames.Add(CityManager.ShowAble.GetWriteName());
+                                CityManager.Exit();
+                            }
+
+                            var serializer = new XmlSerializer(typeof(HousingEstate));
+                            var saving = (HousingEstate) CityManager.ShowAble;
+
+                            if(File.Exists(@"C:\test.xml"))
+                                File.Delete(@"C:\test.xml");
+
+                            var tw = new StreamWriter(@"C:\test.xml");
+                            serializer.Serialize(tw, saving);
+                            //TODO: remove all references -> save file -> restore all references somehow :)
+
+                            tw.Close();
+
+                            nnames.Reverse();
+
+                            foreach (var name in nnames)
+                            {
+                                CityManager.Switch(name);
+                            }
+                            
                             break;
                         
                         default:
@@ -221,6 +252,7 @@ namespace HousingEstateConsole
 
                                                 buffer.Add(GetInput("Age: ", true));
 
+                                                CityManager.Create(buffer);
 
                                                 break;
                                             }

@@ -1,15 +1,21 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
 
 namespace HousingEstateConsole
 {
     public class Entrance : IShowable
     {
-        private int _floors;
-        private readonly int _flatsPerFloor;
-        private int _flatNumber;
+        public int _floors;
+        public readonly int _flatsPerFloor;
+        public int _flatNumber;
+        public int area;
+        public int rooms;
+
+        [XmlIgnore]
         public BlockOfFlats _blockOfFlats;
-        private int area;
-        private int rooms;
 
         public List<Flat> Flats { get; }
 
@@ -105,14 +111,12 @@ namespace HousingEstateConsole
 
         public string GetStructure()
         {
-            var buffer = "";
+            return Flats.Aggregate("", (current, flat) => current + (flat.FlatNumber + "\n"));
+        }
 
-            foreach (var flat in Flats)
-            {
-                buffer += flat.FlatNumber + "\n";
-            }
+        public Entrance()
+        {
 
-            return buffer;
         }
     }
 }

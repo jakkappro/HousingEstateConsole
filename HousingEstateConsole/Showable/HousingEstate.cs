@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace HousingEstateConsole
 {
+    [Serializable]
     public class HousingEstate : IShowable
     {
         public string Name { get; set; }
@@ -65,6 +66,11 @@ namespace HousingEstateConsole
         public string GetStructure()
         {
             return BlockOfFlats.Aggregate("", (current, block) => current + block.BlockOfFlatsNumber.ToString() + "\n");
+        }
+
+        public HousingEstate()
+        {
+
         }
     }
 }

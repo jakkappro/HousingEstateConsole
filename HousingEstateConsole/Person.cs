@@ -5,19 +5,19 @@
         protected string _firstName;
         protected string _secondName;
 
-        protected string FirstName
+        public string FirstName
         {
             get => _firstName;
             set => _firstName = value;
         }
 
-        protected string SecondName
+        public string SecondName
         {
             get => _secondName;
             set => _secondName = value;
         }
 
-        protected int Age { get; set; }
+        public int Age { get; set; }
 
         protected Person(string firstName, string secondName, int age)
         {
@@ -26,5 +26,9 @@
             Age = age;
         }
 
+        protected Person()
+        {
+            
+        }
     }
 }

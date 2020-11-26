@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace HousingEstateConsole
 {
-    [Serializable]
     public class Resident : Person, IShowable
     {
         private readonly Flat _flat;
@@ -64,6 +63,11 @@ namespace HousingEstateConsole
         public string GetStructure()
         {
             throw new NotImplementedException();
+        }
+
+        public Resident()
+        {
+
         }
     }
 }

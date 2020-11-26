@@ -14,7 +14,7 @@ namespace HousingEstateConsole
 
         public static bool Switch(string to)
         {
-            if (!int.TryParse(to, out _) && ShowAble.GetType() != typeof(Flat))
+            if (!int.TryParse(to, out _) &&  ShowAble.GetType().ToString() != typeof(Flat).ToString())
                 return false;
             
             switch (ShowAble)
