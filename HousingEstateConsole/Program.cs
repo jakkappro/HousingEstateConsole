@@ -124,25 +124,73 @@ namespace HousingEstateConsole
                                 nnames.Add(CityManager.ShowAble.GetWriteName());
                                 CityManager.Exit();
                             }
-
-                            var serializer = new XmlSerializer(typeof(HousingEstate));
+                            
                             var saving = (HousingEstate) CityManager.ShowAble;
 
-                            if(File.Exists(@"C:\test.xml"))
-                                File.Delete(@"C:\test.xml");
+                            foreach (var block in saving.BlockOfFlats)
+                            {
+                                block.ParentId = block._housingEstate.Name;
+                                block._housingEstate = null;
+                                
+                                foreach (var entrance in block.Entrances)
+                                {
+                                    entrance.ParentId = block.BlockOfFlatsNumber.ToString();
+                                    entrance._blockOfFlats = null;
+                                    foreach (var flat in entrance.Flats)
+                                    {
+                                        flat.ParentId = entrance.EntranceNumber.ToString();
+                                        flat.Entrance = null;
+                                    }
+                                }
+                            }
 
-                            var tw = new StreamWriter(@"C:\test.xml");
-                            serializer.Serialize(tw, saving);
-                            //TODO: remove all references -> save file -> restore all references somehow :)
-
-                            tw.Close();
+                            XmlSerialize(typeof(HousingEstate), saving,@"C:\test.xml");
 
                             nnames.Reverse();
+                            
+                            foreach (var block in saving.BlockOfFlats)
+                            {
+                                block._housingEstate = saving;
+                                
+                                foreach (var entrance in block.Entrances)
+                                {
+                                    entrance._blockOfFlats = block;
+                                    
+                                    foreach (var flat in entrance.Flats)
+                                    {
+                                        flat.Entrance = entrance;
+                                    }
+                                }
+                            }
 
                             foreach (var name in nnames)
                             {
                                 CityManager.Switch(name);
                             }
+                            
+                            break;
+                        
+                        case "load":
+                            var test = XmlDeserialize(typeof(HousingEstate), @"C:\test.xml") as HousingEstate;
+                            foreach (var block in test.BlockOfFlats)
+                            {
+                                block._housingEstate = test;
+                                foreach (var entrance in block.Entrances)
+                                {
+                                    entrance._blockOfFlats = block;
+                                    
+                                    foreach (var flat in entrance.Flats)
+                                    {
+                                        flat.Entrance = entrance;
+                                        foreach (var people in flat.Residents)
+                                        {
+                                            people._flat = flat;
+                                        }
+                                    }
+                                }
+                            }
+
+                            CityManager.ShowAble = test;
                             
                             break;
                         
@@ -318,6 +366,31 @@ namespace HousingEstateConsole
 
                 Console.Clear();
             }
+        }
+
+        private static void XmlSerialize(Type type, object obj, string filePath)
+        {
+            if(File.Exists(filePath))
+                File.Delete(filePath);
+            
+            var serializer = new XmlSerializer(type);
+            var tw = new StreamWriter(filePath);
+            serializer.Serialize(tw, obj);
+
+            tw.Close();
+        }
+
+        private static object XmlDeserialize(Type type, string filePath)
+        {
+            object obj = null;
+            var serializer = new XmlSerializer(typeof(HousingEstate));
+            if (!File.Exists(@"C:\test.xml"))
+                return obj;
+            var tr = new StreamReader(@"C:\test.xml");
+            obj = serializer.Deserialize(tr);
+            tr.Close();
+
+            return obj;
         }
     }
 }

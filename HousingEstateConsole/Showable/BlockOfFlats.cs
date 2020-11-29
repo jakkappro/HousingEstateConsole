@@ -1,24 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
-using Newtonsoft.Json;
 
 namespace HousingEstateConsole
 {
     
     public class BlockOfFlats : IShowable
     {
+        public string ParentId { get; set; }
         public int area;
         public int rooms;
         public int _entranceNumber;
-        public int _floors;
-        public readonly int _flatsPerFloor;
+        private int _floors;
+        public int _flatsPerFloor;
 
-        [XmlIgnore]
+        
         public HousingEstate _housingEstate;
 
-        public List<Entrance> Entrances { get; }
+        public List<Entrance> Entrances { get; set; }
 
         public string Street { get; set; }
 

@@ -1,23 +1,21 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
-using Newtonsoft.Json;
 
 namespace HousingEstateConsole
 {
     public class Entrance : IShowable
     {
+        public string ParentId { get; set; }
         public int _floors;
-        public readonly int _flatsPerFloor;
+        public int _flatsPerFloor;
         public int _flatNumber;
         public int area;
         public int rooms;
 
-        [XmlIgnore]
+        
         public BlockOfFlats _blockOfFlats;
 
-        public List<Flat> Flats { get; }
+        public List<Flat> Flats { get; set; }
 
         public int EntranceNumber { get; }
         
@@ -54,7 +52,7 @@ namespace HousingEstateConsole
             return buffer;
         }
 
-        private void CreateFlats(int oldFloors, int newFloors)
+        public void CreateFlats(int oldFloors, int newFloors)
         {
             var lel = this;
             if (Flats.Count <= 0)

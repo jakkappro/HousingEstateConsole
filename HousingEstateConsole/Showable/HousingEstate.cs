@@ -9,7 +9,7 @@ namespace HousingEstateConsole
     {
         public string Name { get; set; }
 
-        public List<BlockOfFlats> BlockOfFlats { get; private set; }
+        public List<BlockOfFlats> BlockOfFlats { get; set; }
 
         public HousingEstate(string name)
         {
@@ -70,7 +70,7 @@ namespace HousingEstateConsole
 
         public HousingEstate()
         {
-
+            
         }
     }
 }

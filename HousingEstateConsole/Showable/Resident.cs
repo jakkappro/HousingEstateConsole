@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 
 namespace HousingEstateConsole
 {
     public class Resident : Person, IShowable
     {
-        private readonly Flat _flat;
+        public string ParentId { get; set; }
+        
+        [XmlIgnore]
+        public Flat _flat;
         
         public Resident(string firstName, string secondName, int age, Flat flat) : base(firstName, secondName, age)
         {

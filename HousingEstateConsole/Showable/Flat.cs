@@ -7,14 +7,15 @@ namespace HousingEstateConsole
 {
     public class Flat : IShowable
     {
-        [XmlIgnore]
-        public readonly Entrance Entrance;
+        public string ParentId { get; set; }
+        
+        public Entrance Entrance;
 
-        public List<Resident> Residents { get; }
+        public List<Resident> Residents { get; set; }
 
-        public int FlatNumber { get; }
+        public int FlatNumber { get; set; }
 
-        public int FlatFloor { get; }
+        public int FlatFloor { get; set; }
 
         public int FlatArea { get; set; }
 
